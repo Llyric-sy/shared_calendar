@@ -2,32 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
   <title>Our Shared Calendar</title>
 
   <link rel="stylesheet" href="style.css" />
-  <script type="module" src="script.js"></script>
+
+  <script
+    type="module"
+    src="script.js"
+  ></script>
 </head>
 
 <body>
 
-  <!-- LOGIN -->
+  <!-- =========================
+       LOGIN VIEW
+  ========================== -->
+
   <main id="authView" class="auth-view">
+
     <section class="login-card">
 
       <div class="login-heading">
-        <p class="eyebrow">our time together</p>
-        <h1>shared calendar ♡</h1>
+
+        <p class="eyebrow">
+          our time together
+        </p>
+
+        <h1>
+          shared calendar ♡
+        </h1>
+
         <p class="login-description">
           sign in to see our calendar
         </p>
+
       </div>
 
-      <form id="loginForm" class="login-form">
+
+      <form
+        id="loginForm"
+        class="login-form"
+      >
 
         <label>
           Email
+
           <input
             id="loginEmail"
             type="email"
@@ -37,8 +62,10 @@
           />
         </label>
 
+
         <label>
           Password
+
           <input
             id="loginPassword"
             type="password"
@@ -48,11 +75,13 @@
           />
         </label>
 
+
         <p
           id="loginMessage"
           class="form-message"
           aria-live="polite"
         ></p>
+
 
         <button
           id="loginButton"
@@ -65,24 +94,44 @@
       </form>
 
     </section>
+
   </main>
 
 
-  <!-- MAIN CALENDAR -->
-  <main id="appView" class="app-shell hidden">
+
+  <!-- =========================
+       MAIN CALENDAR
+  ========================== -->
+
+  <main
+    id="appView"
+    class="app-shell hidden"
+  >
+
+    <!-- ACCOUNT BAR -->
 
     <header class="top-bar">
 
       <div class="account-info">
 
-        <div class="avatar">♡</div>
+        <div class="avatar">
+          ♡
+        </div>
 
         <div>
-          <strong id="currentUserName">user</strong>
-          <span id="currentUserRole">member</span>
+
+          <strong id="currentUserName">
+            user
+          </strong>
+
+          <span id="currentUserRole">
+            member
+          </span>
+
         </div>
 
       </div>
+
 
       <div class="account-actions">
 
@@ -106,12 +155,23 @@
     </header>
 
 
+
+    <!-- MONTH HEADER -->
+
     <header class="calendar-header">
 
       <div>
-        <p class="eyebrow">our time together</p>
-        <h1 id="monthLabel">August 2026</h1>
+
+        <p class="eyebrow">
+          our time together
+        </p>
+
+        <h1 id="monthLabel">
+          August 2026
+        </h1>
+
       </div>
+
 
       <div class="month-controls">
 
@@ -124,6 +184,7 @@
           ←
         </button>
 
+
         <button
           id="todayButton"
           class="secondary-button"
@@ -131,6 +192,7 @@
         >
           Today
         </button>
+
 
         <button
           id="nextMonth"
@@ -146,6 +208,9 @@
     </header>
 
 
+
+    <!-- MONTH GRID -->
+
     <section class="calendar-wrapper">
 
       <div class="calendar">
@@ -153,41 +218,83 @@
         <div class="weekdays">
 
           <div>
-            <span class="weekday-full">Monday</span>
-            <span class="weekday-short">M</span>
+            <span class="weekday-full">
+              Monday
+            </span>
+
+            <span class="weekday-short">
+              M
+            </span>
           </div>
 
-          <div>
-            <span class="weekday-full">Tuesday</span>
-            <span class="weekday-short">T</span>
-          </div>
 
           <div>
-            <span class="weekday-full">Wednesday</span>
-            <span class="weekday-short">W</span>
+            <span class="weekday-full">
+              Tuesday
+            </span>
+
+            <span class="weekday-short">
+              T
+            </span>
           </div>
 
-          <div>
-            <span class="weekday-full">Thursday</span>
-            <span class="weekday-short">T</span>
-          </div>
 
           <div>
-            <span class="weekday-full">Friday</span>
-            <span class="weekday-short">F</span>
+            <span class="weekday-full">
+              Wednesday
+            </span>
+
+            <span class="weekday-short">
+              W
+            </span>
           </div>
 
-          <div>
-            <span class="weekday-full">Saturday</span>
-            <span class="weekday-short">S</span>
-          </div>
 
           <div>
-            <span class="weekday-full">Sunday</span>
-            <span class="weekday-short">S</span>
+            <span class="weekday-full">
+              Thursday
+            </span>
+
+            <span class="weekday-short">
+              T
+            </span>
+          </div>
+
+
+          <div>
+            <span class="weekday-full">
+              Friday
+            </span>
+
+            <span class="weekday-short">
+              F
+            </span>
+          </div>
+
+
+          <div>
+            <span class="weekday-full">
+              Saturday
+            </span>
+
+            <span class="weekday-short">
+              S
+            </span>
+          </div>
+
+
+          <div>
+            <span class="weekday-full">
+              Sunday
+            </span>
+
+            <span class="weekday-short">
+              S
+            </span>
           </div>
 
         </div>
+
 
         <div
           id="calendarDays"
@@ -198,6 +305,7 @@
 
     </section>
 
+
     <p class="page-note">
       select a date to view the day
     </p>
@@ -205,7 +313,11 @@
   </main>
 
 
-  <!-- DAILY VIEW -->
+
+  <!-- =========================
+       DAILY CALENDAR MODAL
+  ========================== -->
+
   <div
     id="dayModal"
     class="modal hidden"
@@ -219,11 +331,17 @@
       <header class="modal-header sticky-header">
 
         <div>
-          <p class="eyebrow">daily schedule</p>
+
+          <p class="eyebrow">
+            daily schedule
+          </p>
+
           <h2 id="dayTitle">
             Monday, 3 August 2026
           </h2>
+
         </div>
+
 
         <div class="header-actions">
 
@@ -235,11 +353,12 @@
             Add my schedule
           </button>
 
+
           <button
             id="closeDayModal"
             class="icon-button"
             type="button"
-            aria-label="Close daily calendar"
+            aria-label="Close daily schedule"
           >
             ×
           </button>
@@ -249,6 +368,9 @@
       </header>
 
 
+
+      <!-- LEGEND -->
+
       <div class="timeline-key">
 
         <span>
@@ -256,10 +378,12 @@
           Work
         </span>
 
+
         <span>
           <i class="legend-dot busy-dot"></i>
           Busy
         </span>
+
 
         <span>
           <i class="legend-dot plan-dot"></i>
@@ -269,9 +393,13 @@
       </div>
 
 
+
+      <!-- 24 HOUR TIMELINE -->
+
       <div
         id="timeline"
         class="timeline"
+        aria-label="Twenty-four-hour calendar"
       ></div>
 
     </div>
@@ -279,7 +407,11 @@
   </div>
 
 
-  <!-- EVENT EDITOR -->
+
+  <!-- =========================
+       EVENT EDITOR
+  ========================== -->
+
   <div
     id="eventModal"
     class="modal editor-modal hidden"
@@ -301,9 +433,11 @@
             create a plan
           </p>
 
+
           <h2 id="editorHeading">
             Add an event
           </h2>
+
 
           <p
             id="editorMeta"
@@ -312,16 +446,18 @@
 
         </div>
 
+
         <button
           id="closeEventModal"
           class="icon-button"
           type="button"
-          aria-label="Close editor"
+          aria-label="Close event editor"
         >
           ×
         </button>
 
       </header>
+
 
 
       <form
@@ -336,7 +472,10 @@
         />
 
 
-        <!-- SHARED PLAN -->
+        <!-- =========================
+             PLAN FIELDS
+        ========================== -->
+
         <div id="planFields">
 
           <label>
@@ -348,6 +487,8 @@
                 Select a template
               </option>
 
+
+              <!-- TOGETHER -->
 
               <optgroup label="♡ together">
 
@@ -369,6 +510,8 @@
 
               </optgroup>
 
+
+              <!-- WIND DOWN -->
 
               <optgroup label="☾ wind down">
 
@@ -396,8 +539,14 @@
                   Self-care night
                 </option>
 
+                <option value="comfort-night">
+                  Comfort night
+                </option>
+
               </optgroup>
 
+
+              <!-- FUN -->
 
               <optgroup label="♢ fun">
 
@@ -432,6 +581,8 @@
               </optgroup>
 
 
+              <!-- OTHER -->
+
               <optgroup label="＋ other">
 
                 <option value="custom">
@@ -445,7 +596,9 @@
           </label>
 
 
+
           <!-- CUSTOM EVENT NAME -->
+
           <label
             id="customTitleField"
             class="hidden"
@@ -456,14 +609,19 @@
               id="customEventTitle"
               type="text"
               maxlength="80"
-              placeholder="e.g. pottery class, beach trip, bowling..."
+              placeholder="e.g. bowling, pottery class, beach trip..."
             />
+
           </label>
 
         </div>
 
 
-        <!-- OWNER SCHEDULE -->
+
+        <!-- =========================
+             OWNER SCHEDULE FIELDS
+        ========================== -->
+
         <div
           id="scheduleFields"
           class="hidden"
@@ -489,6 +647,9 @@
         </div>
 
 
+
+        <!-- DATE -->
+
         <label>
           Select date
 
@@ -501,8 +662,12 @@
             />
 
           </span>
+
         </label>
 
+
+
+        <!-- TIMES -->
 
         <div class="time-fields">
 
@@ -513,6 +678,7 @@
               id="startTime"
               required
             ></select>
+
           </label>
 
 
@@ -523,10 +689,14 @@
               id="endTime"
               required
             ></select>
+
           </label>
 
         </div>
 
+
+
+        <!-- NOTES -->
 
         <label>
           Add notes
@@ -537,7 +707,9 @@
             maxlength="500"
             placeholder="add any details..."
           ></textarea>
+
         </label>
+
 
 
         <p
@@ -545,6 +717,7 @@
           class="form-message"
           aria-live="polite"
         ></p>
+
 
 
         <div class="form-actions">
@@ -557,6 +730,7 @@
             Delete
           </button>
 
+
           <div class="right-actions">
 
             <button
@@ -566,6 +740,7 @@
             >
               Cancel
             </button>
+
 
             <button
               id="saveEventButton"

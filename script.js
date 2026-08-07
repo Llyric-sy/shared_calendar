@@ -3,45 +3,53 @@ import {
 } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 
-/* ==============================
+/* ========================================
    SUPABASE
-============================== */
+======================================== */
 
 const SUPABASE_URL =
   "https://uyofqzrgyubdsgheuhbl.supabase.co";
+
 
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_TOj9Iqr3gRFktXxvzYA7kQ_g9-edYzp";
 
 
-const supabase = createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
+const supabase =
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
 
 
-/* ==============================
+
+/* ========================================
    TEMPLATES
-============================== */
+======================================== */
 
 const templates = {
 
-  /* TOGETHER */
+  /* ==================
+     TOGETHER
+  ================== */
 
   "date-night": {
     title: "Date night",
     duration: 240
   },
 
+
   "day-date": {
     title: "Day date",
     duration: 360
   },
 
+
   monthsary: {
     title: "Monthsary",
     duration: 240
   },
+
 
   anniversary: {
     title: "Anniversary",
@@ -49,32 +57,40 @@ const templates = {
   },
 
 
-  /* WIND DOWN */
+
+  /* ==================
+     WIND DOWN
+  ================== */
 
   "reading-night": {
     title: "Reading night",
     duration: 90
   },
 
+
   "cozy-night": {
     title: "Cozy night",
     duration: 120
   },
+
 
   "wind-down": {
     title: "Wind-down time",
     duration: 90
   },
 
+
   "creative-night": {
     title: "Creative night",
     duration: 120
   },
 
+
   "quiet-time": {
     title: "Quiet time",
     duration: 60
   },
+
 
   "self-care-night": {
     title: "Self-care night",
@@ -82,37 +98,52 @@ const templates = {
   },
 
 
-  /* FUN */
+  "comfort-night": {
+    title: "Comfort night",
+    duration: 120
+  },
+
+
+
+  /* ==================
+     FUN
+  ================== */
 
   "game-night": {
     title: "Game night",
     duration: 180
   },
 
+
   "friends-game-night": {
     title: "Game night with friends",
     duration: 240
   },
+
 
   "movie-night": {
     title: "Movie night",
     duration: 180
   },
 
+
   "eat-out": {
     title: "Eat out",
     duration: 120
   },
+
 
   hangout: {
     title: "Hangout",
     duration: 180
   },
 
+
   walk: {
     title: "Walk",
     duration: 90
   },
+
 
   "try-something-new": {
     title: "Try something new",
@@ -120,7 +151,10 @@ const templates = {
   },
 
 
-  /* OTHER */
+
+  /* ==================
+     OTHER
+  ================== */
 
   custom: {
     title: "",
@@ -130,170 +164,319 @@ const templates = {
 };
 
 
-/* ==============================
+
+/* ========================================
    STATE
-============================== */
+======================================== */
 
 const state = {
 
-  currentDate: new Date(),
+  currentDate:
+    new Date(),
 
-  selectedDate: null,
+  selectedDate:
+    null,
 
-  editingId: null,
+  editingId:
+    null,
 
-  editorReadOnly: false,
+  editorReadOnly:
+    false,
 
-  items: [],
+  items:
+    [],
 
-  user: null,
+  user:
+    null,
 
-  profile: null,
+  profile:
+    null,
 
-  members: new Map(),
+  members:
+    new Map(),
 
-  realtimeChannel: null
+  realtimeChannel:
+    null
 
 };
 
 
-/* ==============================
-   ELEMENTS
-============================== */
+
+/* ========================================
+   AUTH ELEMENTS
+======================================== */
 
 const authView =
-  document.querySelector("#authView");
+  document.querySelector(
+    "#authView"
+  );
+
 
 const appView =
-  document.querySelector("#appView");
+  document.querySelector(
+    "#appView"
+  );
+
 
 const loginForm =
-  document.querySelector("#loginForm");
+  document.querySelector(
+    "#loginForm"
+  );
+
 
 const loginEmail =
-  document.querySelector("#loginEmail");
+  document.querySelector(
+    "#loginEmail"
+  );
+
 
 const loginPassword =
-  document.querySelector("#loginPassword");
+  document.querySelector(
+    "#loginPassword"
+  );
+
 
 const loginButton =
-  document.querySelector("#loginButton");
+  document.querySelector(
+    "#loginButton"
+  );
+
 
 const loginMessage =
-  document.querySelector("#loginMessage");
+  document.querySelector(
+    "#loginMessage"
+  );
+
 
 const logoutButton =
-  document.querySelector("#logoutButton");
+  document.querySelector(
+    "#logoutButton"
+  );
+
 
 const currentUserName =
-  document.querySelector("#currentUserName");
+  document.querySelector(
+    "#currentUserName"
+  );
+
 
 const currentUserRole =
-  document.querySelector("#currentUserRole");
+  document.querySelector(
+    "#currentUserRole"
+  );
+
 
 const syncStatus =
-  document.querySelector("#syncStatus");
+  document.querySelector(
+    "#syncStatus"
+  );
 
+
+
+/* ========================================
+   MONTH ELEMENTS
+======================================== */
 
 const monthLabel =
-  document.querySelector("#monthLabel");
+  document.querySelector(
+    "#monthLabel"
+  );
+
 
 const calendarDays =
-  document.querySelector("#calendarDays");
+  document.querySelector(
+    "#calendarDays"
+  );
+
 
 const previousMonthButton =
-  document.querySelector("#previousMonth");
+  document.querySelector(
+    "#previousMonth"
+  );
+
 
 const nextMonthButton =
-  document.querySelector("#nextMonth");
+  document.querySelector(
+    "#nextMonth"
+  );
+
 
 const todayButton =
-  document.querySelector("#todayButton");
+  document.querySelector(
+    "#todayButton"
+  );
 
+
+
+/* ========================================
+   DAILY VIEW ELEMENTS
+======================================== */
 
 const dayModal =
-  document.querySelector("#dayModal");
+  document.querySelector(
+    "#dayModal"
+  );
+
 
 const dayTitle =
-  document.querySelector("#dayTitle");
+  document.querySelector(
+    "#dayTitle"
+  );
+
 
 const timeline =
-  document.querySelector("#timeline");
+  document.querySelector(
+    "#timeline"
+  );
+
 
 const closeDayModalButton =
-  document.querySelector("#closeDayModal");
+  document.querySelector(
+    "#closeDayModal"
+  );
+
 
 const addScheduleButton =
-  document.querySelector("#addScheduleButton");
+  document.querySelector(
+    "#addScheduleButton"
+  );
 
+
+
+/* ========================================
+   EDITOR ELEMENTS
+======================================== */
 
 const eventModal =
-  document.querySelector("#eventModal");
+  document.querySelector(
+    "#eventModal"
+  );
+
 
 const eventForm =
-  document.querySelector("#eventForm");
+  document.querySelector(
+    "#eventForm"
+  );
+
 
 const editorLabel =
-  document.querySelector("#editorLabel");
+  document.querySelector(
+    "#editorLabel"
+  );
+
 
 const editorHeading =
-  document.querySelector("#editorHeading");
+  document.querySelector(
+    "#editorHeading"
+  );
+
 
 const editorMeta =
-  document.querySelector("#editorMeta");
+  document.querySelector(
+    "#editorMeta"
+  );
+
 
 const closeEventModalButton =
-  document.querySelector("#closeEventModal");
+  document.querySelector(
+    "#closeEventModal"
+  );
+
 
 const cancelEditorButton =
-  document.querySelector("#cancelEditor");
+  document.querySelector(
+    "#cancelEditor"
+  );
+
 
 const deleteEventButton =
-  document.querySelector("#deleteEvent");
+  document.querySelector(
+    "#deleteEvent"
+  );
+
 
 const saveEventButton =
-  document.querySelector("#saveEventButton");
+  document.querySelector(
+    "#saveEventButton"
+  );
+
 
 const formMessage =
-  document.querySelector("#formMessage");
+  document.querySelector(
+    "#formMessage"
+  );
+
 
 const itemTypeInput =
-  document.querySelector("#itemType");
+  document.querySelector(
+    "#itemType"
+  );
+
 
 const planFields =
-  document.querySelector("#planFields");
+  document.querySelector(
+    "#planFields"
+  );
+
 
 const scheduleFields =
-  document.querySelector("#scheduleFields");
+  document.querySelector(
+    "#scheduleFields"
+  );
+
 
 const templateSelect =
-  document.querySelector("#templateSelect");
+  document.querySelector(
+    "#templateSelect"
+  );
+
 
 const customTitleField =
-  document.querySelector("#customTitleField");
+  document.querySelector(
+    "#customTitleField"
+  );
+
 
 const customEventTitle =
-  document.querySelector("#customEventTitle");
+  document.querySelector(
+    "#customEventTitle"
+  );
+
 
 const scheduleTypeSelect =
-  document.querySelector("#scheduleType");
+  document.querySelector(
+    "#scheduleType"
+  );
+
 
 const eventDateInput =
-  document.querySelector("#eventDate");
+  document.querySelector(
+    "#eventDate"
+  );
+
 
 const startTimeSelect =
-  document.querySelector("#startTime");
+  document.querySelector(
+    "#startTime"
+  );
+
 
 const endTimeSelect =
-  document.querySelector("#endTime");
+  document.querySelector(
+    "#endTime"
+  );
+
 
 const notesInput =
-  document.querySelector("#eventNotes");
+  document.querySelector(
+    "#eventNotes"
+  );
 
 
-/* ==============================
-   START
-============================== */
+
+/* ========================================
+   START APPLICATION
+======================================== */
 
 buildTimeOptions();
 
@@ -302,9 +485,10 @@ attachEventListeners();
 boot();
 
 
-/* ==============================
+
+/* ========================================
    BOOT
-============================== */
+======================================== */
 
 async function boot() {
 
@@ -319,7 +503,8 @@ async function boot() {
       session
     }
   } =
-    await supabase.auth.getSession();
+    await supabase.auth
+      .getSession();
 
 
   if (session) {
@@ -335,51 +520,66 @@ async function boot() {
   }
 
 
-  supabase.auth.onAuthStateChange(
-    (event, session) => {
-
-      if (
-        event === "SIGNED_IN" &&
+  supabase.auth
+    .onAuthStateChange(
+      (
+        event,
         session
-      ) {
+      ) => {
 
-        setTimeout(() => {
+        if (
+          event ===
+            "SIGNED_IN" &&
+          session
+        ) {
 
-          if (
-            state.user?.id !==
-            session.user.id
-          ) {
+          setTimeout(
+            () => {
 
-            loadAuthenticatedApp(
-              session
-            );
+              if (
+                state.user?.id !==
+                session.user.id
+              ) {
 
-          }
+                loadAuthenticatedApp(
+                  session
+                );
 
-        }, 0);
+              }
+
+            },
+            0
+          );
+
+        }
+
+
+        if (
+          event ===
+          "SIGNED_OUT"
+        ) {
+
+          setTimeout(
+            () => {
+
+              clearAuthenticatedApp();
+
+            },
+            0
+          );
+
+        }
 
       }
-
-
-      if (
-        event === "SIGNED_OUT"
-      ) {
-
-        setTimeout(() => {
-          clearAuthenticatedApp();
-        }, 0);
-
-      }
-
-    }
-  );
+    );
 
 }
 
 
-/* ==============================
-   LISTENERS
-============================== */
+
+/* ========================================
+   EVENT LISTENERS
+======================================== */
 
 function attachEventListeners() {
 
@@ -395,38 +595,50 @@ function attachEventListeners() {
   );
 
 
-  previousMonthButton.addEventListener(
-    "click",
-    () => {
+  previousMonthButton
+    .addEventListener(
+      "click",
+      () => {
 
-      state.currentDate =
-        new Date(
-          state.currentDate.getFullYear(),
-          state.currentDate.getMonth() - 1,
-          1
-        );
+        state.currentDate =
+          new Date(
+            state.currentDate
+              .getFullYear(),
 
-      renderCalendar();
+            state.currentDate
+              .getMonth() - 1,
 
-    }
-  );
+            1
+          );
 
 
-  nextMonthButton.addEventListener(
-    "click",
-    () => {
+        renderCalendar();
 
-      state.currentDate =
-        new Date(
-          state.currentDate.getFullYear(),
-          state.currentDate.getMonth() + 1,
-          1
-        );
+      }
+    );
 
-      renderCalendar();
 
-    }
-  );
+  nextMonthButton
+    .addEventListener(
+      "click",
+      () => {
+
+        state.currentDate =
+          new Date(
+            state.currentDate
+              .getFullYear(),
+
+            state.currentDate
+              .getMonth() + 1,
+
+            1
+          );
+
+
+        renderCalendar();
+
+      }
+    );
 
 
   todayButton.addEventListener(
@@ -436,77 +648,93 @@ function attachEventListeners() {
       state.currentDate =
         new Date();
 
+
       renderCalendar();
 
     }
   );
 
 
-  closeDayModalButton.addEventListener(
-    "click",
-    closeDayView
-  );
+  closeDayModalButton
+    .addEventListener(
+      "click",
+      closeDayView
+    );
 
 
-  addScheduleButton.addEventListener(
-    "click",
-    () => {
+  addScheduleButton
+    .addEventListener(
+      "click",
+      () => {
 
-      openEditor({
-        type: "schedule",
-        start: "09:00",
-        end: "17:00"
-      });
+        openEditor({
 
-    }
-  );
+          type:
+            "schedule",
 
+          start:
+            "09:00",
 
-  closeEventModalButton.addEventListener(
-    "click",
-    closeEditor
-  );
+          end:
+            "17:00"
 
+        });
 
-  cancelEditorButton.addEventListener(
-    "click",
-    closeEditor
-  );
+      }
+    );
 
 
-  deleteEventButton.addEventListener(
-    "click",
-    deleteCurrentItem
-  );
+  closeEventModalButton
+    .addEventListener(
+      "click",
+      closeEditor
+    );
 
 
-  templateSelect.addEventListener(
-    "change",
-    () => {
-
-      updateCustomTitleField();
-
-      applyTemplateDuration();
-
-    }
-  );
+  cancelEditorButton
+    .addEventListener(
+      "click",
+      closeEditor
+    );
 
 
-  startTimeSelect.addEventListener(
-    "change",
-    () => {
+  deleteEventButton
+    .addEventListener(
+      "click",
+      deleteCurrentItem
+    );
 
-      if (
-        itemTypeInput.value === "plan" &&
-        templateSelect.value
-      ) {
+
+  templateSelect
+    .addEventListener(
+      "change",
+      () => {
+
+        updateCustomTitleField();
 
         applyTemplateDuration();
 
       }
+    );
 
-    }
-  );
+
+  startTimeSelect
+    .addEventListener(
+      "change",
+      () => {
+
+        if (
+          itemTypeInput.value ===
+            "plan" &&
+          templateSelect.value
+        ) {
+
+          applyTemplateDuration();
+
+        }
+
+      }
+    );
 
 
   eventForm.addEventListener(
@@ -520,7 +748,8 @@ function attachEventListeners() {
     event => {
 
       if (
-        event.target === dayModal
+        event.target ===
+        dayModal
       ) {
 
         closeDayView();
@@ -536,7 +765,8 @@ function attachEventListeners() {
     event => {
 
       if (
-        event.target === eventModal
+        event.target ===
+        eventModal
       ) {
 
         closeEditor();
@@ -552,7 +782,8 @@ function attachEventListeners() {
     event => {
 
       if (
-        event.key !== "Escape"
+        event.key !==
+        "Escape"
       ) {
 
         return;
@@ -561,9 +792,11 @@ function attachEventListeners() {
 
 
       if (
-        !eventModal.classList.contains(
-          "hidden"
-        )
+        !eventModal
+          .classList
+          .contains(
+            "hidden"
+          )
       ) {
 
         closeEditor();
@@ -574,9 +807,11 @@ function attachEventListeners() {
 
 
       if (
-        !dayModal.classList.contains(
-          "hidden"
-        )
+        !dayModal
+          .classList
+          .contains(
+            "hidden"
+          )
       ) {
 
         closeDayView();
@@ -589,55 +824,33 @@ function attachEventListeners() {
 }
 
 
-/* ==============================
-   CUSTOM EVENT
-============================== */
 
-function updateCustomTitleField() {
-
-  const customSelected =
-    templateSelect.value ===
-    "custom";
-
-
-  customTitleField.classList.toggle(
-    "hidden",
-    !customSelected
-  );
-
-
-  customEventTitle.required =
-    customSelected;
-
-
-  if (!customSelected) {
-
-    customEventTitle.value = "";
-
-  }
-
-}
-
-
-/* ==============================
+/* ========================================
    LOGIN
-============================== */
+======================================== */
 
 async function login(event) {
 
   event.preventDefault();
 
 
-  loginMessage.textContent = "";
+  loginMessage.textContent =
+    "";
 
-  loginButton.disabled = true;
+
+  loginButton.disabled =
+    true;
+
 
   loginButton.textContent =
     "Signing in...";
 
 
   const email =
-    loginEmail.value.trim();
+    loginEmail
+      .value
+      .trim();
+
 
   const password =
     loginPassword.value;
@@ -649,8 +862,11 @@ async function login(event) {
   } =
     await supabase.auth
       .signInWithPassword({
+
         email,
+
         password
+
       });
 
 
@@ -659,17 +875,22 @@ async function login(event) {
     loginMessage.textContent =
       "Incorrect email or password.";
 
-    loginButton.disabled = false;
+
+    loginButton.disabled =
+      false;
+
 
     loginButton.textContent =
       "Sign in";
+
 
     return;
 
   }
 
 
-  loginPassword.value = "";
+  loginPassword.value =
+    "";
 
 
   await loadAuthenticatedApp(
@@ -677,7 +898,9 @@ async function login(event) {
   );
 
 
-  loginButton.disabled = false;
+  loginButton.disabled =
+    false;
+
 
   loginButton.textContent =
     "Sign in";
@@ -685,24 +908,34 @@ async function login(event) {
 }
 
 
+
+/* ========================================
+   LOGOUT
+======================================== */
+
 async function logout() {
 
-  await supabase.auth.signOut();
+  await supabase.auth
+    .signOut();
+
 
   clearAuthenticatedApp();
 
 }
 
 
-/* ==============================
-   LOAD ACCOUNT
-============================== */
+
+/* ========================================
+   LOAD AUTHENTICATED APP
+======================================== */
 
 async function loadAuthenticatedApp(
   session
 ) {
 
-  if (!session?.user) {
+  if (
+    !session?.user
+  ) {
 
     showLogin();
 
@@ -721,12 +954,17 @@ async function loadAuthenticatedApp(
     session.user;
 
 
+
+  /* LOAD CURRENT PROFILE */
+
   const {
     data: profile,
     error: profileError
   } =
     await supabase
-      .from("profiles")
+      .from(
+        "profiles"
+      )
       .select(
         "id, display_name, role, active"
       )
@@ -746,9 +984,13 @@ async function loadAuthenticatedApp(
     loginMessage.textContent =
       "This account does not have access to the calendar.";
 
-    await supabase.auth.signOut();
+
+    await supabase.auth
+      .signOut();
+
 
     showLogin();
+
 
     return;
 
@@ -759,11 +1001,16 @@ async function loadAuthenticatedApp(
     profile;
 
 
+
+  /* LOAD BOTH USER NAMES */
+
   const {
     data: memberRows
   } =
     await supabase
-      .from("profiles")
+      .from(
+        "profiles"
+      )
       .select(
         "id, display_name, role"
       );
@@ -786,21 +1033,34 @@ async function loadAuthenticatedApp(
   }
 
 
+
+  /* ACCOUNT DISPLAY */
+
   currentUserName.textContent =
     profile.display_name;
 
 
   currentUserRole.textContent =
-    profile.role === "girlfriend"
+    profile.role ===
+      "girlfriend"
       ? "my love"
       : profile.role;
 
 
-  addScheduleButton.classList.toggle(
-    "hidden",
-    profile.role !== "owner"
-  );
 
+  /* ONLY OWNER SEES SCHEDULE BUTTON */
+
+  addScheduleButton
+    .classList
+    .toggle(
+      "hidden",
+      profile.role !==
+        "owner"
+    );
+
+
+
+  /* SHOW APP */
 
   authView.classList.add(
     "hidden"
@@ -812,7 +1072,29 @@ async function loadAuthenticatedApp(
   );
 
 
+
+  /* LOAD DATABASE */
+
   await loadItems();
+
+
+
+  /*
+   * IMPORT OLD LOCAL CALENDAR
+   * IF THIS BROWSER STILL HAS IT
+   */
+
+  await migrateOldLocalItems();
+
+
+
+  /*
+   * LOAD AGAIN IN CASE
+   * MIGRATION ADDED ITEMS
+   */
+
+  await loadItems();
+
 
 
   subscribeToRealtime();
@@ -829,9 +1111,10 @@ async function loadAuthenticatedApp(
 }
 
 
-/* ==============================
-   CLEAR ACCOUNT
-============================== */
+
+/* ========================================
+   CLEAR AUTHENTICATED APP
+======================================== */
 
 function clearAuthenticatedApp() {
 
@@ -846,13 +1129,21 @@ function clearAuthenticatedApp() {
   }
 
 
-  state.realtimeChannel = null;
+  state.realtimeChannel =
+    null;
 
-  state.user = null;
 
-  state.profile = null;
+  state.user =
+    null;
 
-  state.items = [];
+
+  state.profile =
+    null;
+
+
+  state.items =
+    [];
+
 
   state.members =
     new Map();
@@ -860,18 +1151,26 @@ function clearAuthenticatedApp() {
 
   closeEditor();
 
+
   closeDayView();
+
 
   showLogin();
 
 }
 
 
+
+/* ========================================
+   SHOW LOGIN
+======================================== */
+
 function showLogin() {
 
   appView.classList.add(
     "hidden"
   );
+
 
   authView.classList.remove(
     "hidden"
@@ -880,13 +1179,16 @@ function showLogin() {
 }
 
 
-/* ==============================
-   LOAD CALENDAR
-============================== */
+
+/* ========================================
+   LOAD CALENDAR ITEMS
+======================================== */
 
 async function loadItems() {
 
-  if (!state.user) {
+  if (
+    !state.user
+  ) {
 
     return;
 
@@ -904,18 +1206,22 @@ async function loadItems() {
     error
   } =
     await supabase
-      .from("calendar_items")
+      .from(
+        "calendar_items"
+      )
       .select("*")
       .order(
         "event_date",
         {
-          ascending: true
+          ascending:
+            true
         }
       )
       .order(
         "start_time",
         {
-          ascending: true
+          ascending:
+            true
         }
       );
 
@@ -927,10 +1233,12 @@ async function loadItems() {
       error
     );
 
+
     setSyncStatus(
       "sync error",
       true
     );
+
 
     return;
 
@@ -938,9 +1246,10 @@ async function loadItems() {
 
 
   state.items =
-    (data || []).map(
-      mapDatabaseItem
-    );
+    (data || [])
+      .map(
+        mapDatabaseItem
+      );
 
 
   setSyncStatus(
@@ -950,6 +1259,11 @@ async function loadItems() {
 
 }
 
+
+
+/* ========================================
+   DATABASE ITEM → APP ITEM
+======================================== */
 
 function mapDatabaseItem(item) {
 
@@ -994,9 +1308,10 @@ function mapDatabaseItem(item) {
 }
 
 
-/* ==============================
-   REALTIME
-============================== */
+
+/* ========================================
+   REALTIME SYNC
+======================================== */
 
 function subscribeToRealtime() {
 
@@ -1017,23 +1332,36 @@ function subscribeToRealtime() {
         "shared-calendar-live"
       )
       .on(
+
         "postgres_changes",
+
         {
-          event: "*",
-          schema: "public",
-          table: "calendar_items"
+
+          event:
+            "*",
+
+          schema:
+            "public",
+
+          table:
+            "calendar_items"
+
         },
+
         async () => {
 
           await loadItems();
+
 
           renderCalendar();
 
 
           if (
-            !dayModal.classList.contains(
-              "hidden"
-            )
+            !dayModal
+              .classList
+              .contains(
+                "hidden"
+              )
           ) {
 
             renderTimeline();
@@ -1041,43 +1369,58 @@ function subscribeToRealtime() {
           }
 
         }
+
       )
       .subscribe();
 
 }
 
 
-/* ==============================
-   MONTH CALENDAR
-============================== */
+
+/* ========================================
+   RENDER MONTH
+======================================== */
 
 function renderCalendar() {
 
   const year =
-    state.currentDate.getFullYear();
+    state.currentDate
+      .getFullYear();
+
 
   const month =
-    state.currentDate.getMonth();
+    state.currentDate
+      .getMonth();
 
 
   monthLabel.textContent =
     new Intl.DateTimeFormat(
       "en-AU",
       {
-        month: "long",
-        year: "numeric"
+
+        month:
+          "long",
+
+        year:
+          "numeric"
+
       }
-    ).format(
-      new Date(
-        year,
-        month,
-        1
-      )
-    );
+    )
+      .format(
+        new Date(
+          year,
+          month,
+          1
+        )
+      );
 
 
-  calendarDays.innerHTML = "";
+  calendarDays.innerHTML =
+    "";
 
+
+
+  /* FIRST DAY OF MONTH */
 
   const firstWeekday =
     new Date(
@@ -1087,8 +1430,20 @@ function renderCalendar() {
     ).getDay();
 
 
+  /*
+   * JS:
+   * Sunday = 0
+   *
+   * Calendar:
+   * Monday first
+   */
+
   const mondayFirstOffset =
-    (firstWeekday + 6) % 7;
+    (
+      firstWeekday +
+      6
+    ) % 7;
+
 
 
   const daysInMonth =
@@ -1099,15 +1454,19 @@ function renderCalendar() {
     ).getDate();
 
 
+
   const totalCells =
     Math.max(
+
       35,
+
       Math.ceil(
         (
           mondayFirstOffset +
           daysInMonth
         ) / 7
       ) * 7
+
     );
 
 
@@ -1115,6 +1474,7 @@ function renderCalendar() {
     toDateKey(
       new Date()
     );
+
 
 
   for (
@@ -1129,6 +1489,9 @@ function renderCalendar() {
       1;
 
 
+
+    /* EMPTY CALENDAR BOX */
+
     if (
       dayNumber < 1 ||
       dayNumber > daysInMonth
@@ -1139,17 +1502,23 @@ function renderCalendar() {
           "div"
         );
 
+
       blankCell.className =
         "day-cell blank-day";
+
 
       calendarDays.append(
         blankCell
       );
 
+
       continue;
 
     }
 
+
+
+    /* DATE KEY */
 
     const dateKey =
       makeDateKey(
@@ -1159,6 +1528,9 @@ function renderCalendar() {
       );
 
 
+
+    /* DAY BUTTON */
+
     const dayButton =
       document.createElement(
         "button"
@@ -1167,6 +1539,7 @@ function renderCalendar() {
 
     dayButton.type =
       "button";
+
 
     dayButton.className =
       "day-cell";
@@ -1180,8 +1553,10 @@ function renderCalendar() {
     );
 
 
+
     if (
-      dateKey === todayKey
+      dateKey ===
+      todayKey
     ) {
 
       dayButton.classList.add(
@@ -1190,6 +1565,9 @@ function renderCalendar() {
 
     }
 
+
+
+    /* DATE NUMBER */
 
     const number =
       document.createElement(
@@ -1200,14 +1578,20 @@ function renderCalendar() {
     number.className =
       "day-number";
 
+
     number.textContent =
-      String(dayNumber);
+      String(
+        dayNumber
+      );
 
 
     dayButton.append(
       number
     );
 
+
+
+    /* EVENT SUMMARY */
 
     const summary =
       document.createElement(
@@ -1258,6 +1642,7 @@ function renderCalendar() {
     }
 
 
+
     const remaining =
       dayItems.length -
       visibleItems.length;
@@ -1293,6 +1678,7 @@ function renderCalendar() {
     );
 
 
+
     dayButton.addEventListener(
       "click",
       () => {
@@ -1314,9 +1700,10 @@ function renderCalendar() {
 }
 
 
-/* ==============================
-   DAY VIEW
-============================== */
+
+/* ========================================
+   OPEN DAY VIEW
+======================================== */
 
 function openDayView(
   dateKey
@@ -1347,6 +1734,11 @@ function openDayView(
 }
 
 
+
+/* ========================================
+   CLOSE DAY VIEW
+======================================== */
+
 function closeDayView() {
 
   dayModal.classList.add(
@@ -1355,9 +1747,11 @@ function closeDayView() {
 
 
   if (
-    eventModal.classList.contains(
-      "hidden"
-    )
+    eventModal
+      .classList
+      .contains(
+        "hidden"
+      )
   ) {
 
     document.body.classList.remove(
@@ -1369,13 +1763,26 @@ function closeDayView() {
 }
 
 
-/* ==============================
-   TIMELINE
-============================== */
+
+/* ========================================
+   RENDER 24 HOUR TIMELINE
+======================================== */
 
 function renderTimeline() {
 
-  timeline.innerHTML = "";
+  timeline.innerHTML =
+    "";
+
+
+  /*
+   * 48 rows:
+   *
+   * 00:00
+   * 00:30
+   * 01:00
+   * 01:30
+   * ...
+   */
 
 
   for (
@@ -1383,6 +1790,8 @@ function renderTimeline() {
     slotIndex < 48;
     slotIndex += 1
   ) {
+
+    /* TIME LABEL */
 
     const label =
       document.createElement(
@@ -1405,12 +1814,16 @@ function renderTimeline() {
 
 
     /*
-      Only the full-hour label
-      is visible.
+     * ONLY SHOW:
+     *
+     * 09:00
+     * -------
+     * - - - -
+     * 10:00
+     *
+     * xx:30 stays hidden
+     */
 
-      The hidden xx:30 position
-      is shown with a dashed line.
-    */
     if (
       slotIndex % 2 === 0
     ) {
@@ -1427,6 +1840,9 @@ function renderTimeline() {
       label
     );
 
+
+
+    /* CLICKABLE SLOT */
 
     const slot =
       document.createElement(
@@ -1460,6 +1876,16 @@ function renderTimeline() {
       );
 
 
+    slot.setAttribute(
+      "aria-label",
+      `Create a plan at ${slotTime}`
+    );
+
+
+    slot.title =
+      `Create a plan at ${slotTime}`;
+
+
     slot.addEventListener(
       "click",
       () => {
@@ -1478,12 +1904,18 @@ function renderTimeline() {
 
 
         openEditor({
-          type: "plan",
-          start: slotTime,
+
+          type:
+            "plan",
+
+          start:
+            slotTime,
+
           end:
             minutesToTime(
               endMinutes
             )
+
         });
 
       }
@@ -1496,6 +1928,9 @@ function renderTimeline() {
 
   }
 
+
+
+  /* EXISTING EVENTS */
 
   const dayItems =
     getItemsForDate(
@@ -1535,6 +1970,7 @@ function renderTimeline() {
     }
 
 
+
     const eventBlock =
       document.createElement(
         "button"
@@ -1557,6 +1993,9 @@ function renderTimeline() {
       "2";
 
 
+
+    /* EVENT TITLE */
+
     const eventTitle =
       document.createElement(
         "strong"
@@ -1566,6 +2005,9 @@ function renderTimeline() {
     eventTitle.textContent =
       item.title;
 
+
+
+    /* EVENT DETAILS */
 
     const eventDetails =
       document.createElement(
@@ -1580,8 +2022,11 @@ function renderTimeline() {
 
 
     eventDetails.textContent =
-      item.type === "plan"
+      item.type ===
+        "plan"
+
         ? `${item.start}–${item.end} · ${creator}`
+
         : `${item.start}–${item.end}`;
 
 
@@ -1612,9 +2057,46 @@ function renderTimeline() {
 }
 
 
-/* ==============================
-   EVENT EDITOR
-============================== */
+
+/* ========================================
+   CUSTOM EVENT FIELD
+======================================== */
+
+function updateCustomTitleField() {
+
+  const customSelected =
+    templateSelect.value ===
+    "custom";
+
+
+  customTitleField
+    .classList
+    .toggle(
+      "hidden",
+      !customSelected
+    );
+
+
+  customEventTitle.required =
+    customSelected;
+
+
+  if (
+    !customSelected
+  ) {
+
+    customEventTitle.value =
+      "";
+
+  }
+
+}
+
+
+
+/* ========================================
+   OPEN EVENT EDITOR
+======================================== */
 
 function openEditor({
 
@@ -1631,11 +2113,20 @@ function openEditor({
 
   eventForm.reset();
 
-  formMessage.textContent = "";
+
+  formMessage.textContent =
+    "";
+
+
+  formMessage.classList.remove(
+    "success"
+  );
 
 
   state.editingId =
-    item?.id ?? null;
+    item?.id ??
+    null;
+
 
 
   const itemType =
@@ -1648,12 +2139,16 @@ function openEditor({
 
 
   const isPlan =
-    itemType === "plan";
+    itemType ===
+    "plan";
+
 
 
   const canEdit =
     item
-      ? canEditItem(item)
+      ? canEditItem(
+          item
+        )
       : (
           isPlan ||
           isOwner()
@@ -1663,6 +2158,9 @@ function openEditor({
   state.editorReadOnly =
     !canEdit;
 
+
+
+  /* SHOW CORRECT FORM */
 
   planFields.classList.toggle(
     "hidden",
@@ -1675,6 +2173,9 @@ function openEditor({
     isPlan
   );
 
+
+
+  /* EDIT EXISTING ITEM */
 
   if (item) {
 
@@ -1697,7 +2198,12 @@ function openEditor({
     saveEventButton.textContent =
       "Save changes";
 
-  } else {
+  }
+
+
+  /* NEW ITEM */
+
+  else {
 
     editorLabel.textContent =
       isPlan
@@ -1711,7 +2217,8 @@ function openEditor({
         : "Add my schedule";
 
 
-    editorMeta.textContent = "";
+    editorMeta.textContent =
+      "";
 
 
     saveEventButton.textContent =
@@ -1722,13 +2229,60 @@ function openEditor({
   }
 
 
-  templateSelect.value =
-    item?.template ||
-    "";
 
+  /*
+   * TEMPLATE
+   *
+   * If an older event used a removed
+   * template such as "dinner" or "cafe",
+   * turn it into a Custom event when editing.
+   */
 
   if (
-    item?.template === "custom"
+    item &&
+    isPlan
+  ) {
+
+    if (
+      item.template &&
+      templates[
+        item.template
+      ]
+    ) {
+
+      templateSelect.value =
+        item.template;
+
+    } else {
+
+      templateSelect.value =
+        "custom";
+
+    }
+
+  } else {
+
+    templateSelect.value =
+      "";
+
+  }
+
+
+
+  /*
+   * CUSTOM TITLE
+   */
+
+  if (
+    item &&
+    isPlan &&
+    (
+      item.template ===
+        "custom" ||
+      !templates[
+        item.template
+      ]
+    )
   ) {
 
     customEventTitle.value =
@@ -1736,7 +2290,8 @@ function openEditor({
 
   } else {
 
-    customEventTitle.value = "";
+    customEventTitle.value =
+      "";
 
   }
 
@@ -1744,11 +2299,18 @@ function openEditor({
   updateCustomTitleField();
 
 
+
+  /* SCHEDULE CATEGORY */
+
   scheduleTypeSelect.value =
-    item?.category === "busy"
+    item?.category ===
+      "busy"
       ? "busy"
       : "work";
 
+
+
+  /* DATE */
 
   eventDateInput.value =
     item?.date ||
@@ -1757,6 +2319,9 @@ function openEditor({
       new Date()
     );
 
+
+
+  /* TIMES */
 
   startTimeSelect.value =
     item?.start ||
@@ -1768,27 +2333,40 @@ function openEditor({
     end;
 
 
+
+  /* NOTES */
+
   notesInput.value =
     item?.notes ||
     "";
 
+
+
+  /* PERMISSIONS */
 
   setEditorDisabled(
     !canEdit
   );
 
 
-  deleteEventButton.classList.toggle(
-    "hidden",
-    !item ||
-    !canEdit
-  );
+  deleteEventButton
+    .classList
+    .toggle(
+
+      "hidden",
+
+      !item ||
+      !canEdit
+
+    );
 
 
-  saveEventButton.classList.toggle(
-    "hidden",
-    !canEdit
-  );
+  saveEventButton
+    .classList
+    .toggle(
+      "hidden",
+      !canEdit
+    );
 
 
   cancelEditorButton.textContent =
@@ -1796,6 +2374,9 @@ function openEditor({
       ? "Cancel"
       : "Close";
 
+
+
+  /* OPEN */
 
   eventModal.classList.remove(
     "hidden"
@@ -1809,11 +2390,16 @@ function openEditor({
 }
 
 
-/* ==============================
-   PERMISSIONS
-============================== */
+
+/* ========================================
+   EDIT PERMISSIONS
+======================================== */
 
 function canEditItem(item) {
+
+  /*
+   * OWNER CAN EDIT EVERYTHING
+   */
 
   if (
     isOwner()
@@ -1824,14 +2410,28 @@ function canEditItem(item) {
   }
 
 
+  /*
+   * GIRLFRIEND CAN EDIT
+   * HER OWN SHARED PLANS
+   */
+
   return (
-    item.type === "plan" &&
+
+    item.type ===
+      "plan" &&
+
     item.createdBy ===
       state.user?.id
+
   );
 
 }
 
+
+
+/* ========================================
+   OWNER CHECK
+======================================== */
 
 function isOwner() {
 
@@ -1843,6 +2443,11 @@ function isOwner() {
 }
 
 
+
+/* ========================================
+   DISABLE EDITOR
+======================================== */
+
 function setEditorDisabled(
   disabled
 ) {
@@ -1850,26 +2455,37 @@ function setEditorDisabled(
   templateSelect.disabled =
     disabled;
 
+
   customEventTitle.disabled =
     disabled;
+
 
   scheduleTypeSelect.disabled =
     disabled;
 
+
   eventDateInput.disabled =
     disabled;
+
 
   startTimeSelect.disabled =
     disabled;
 
+
   endTimeSelect.disabled =
     disabled;
+
 
   notesInput.disabled =
     disabled;
 
 }
 
+
+
+/* ========================================
+   CLOSE EDITOR
+======================================== */
 
 function closeEditor() {
 
@@ -1878,11 +2494,16 @@ function closeEditor() {
   );
 
 
-  state.editingId = null;
+  state.editingId =
+    null;
 
-  state.editorReadOnly = false;
 
-  formMessage.textContent = "";
+  state.editorReadOnly =
+    false;
+
+
+  formMessage.textContent =
+    "";
 
 
   setEditorDisabled(
@@ -1891,9 +2512,11 @@ function closeEditor() {
 
 
   if (
-    dayModal.classList.contains(
-      "hidden"
-    )
+    dayModal
+      .classList
+      .contains(
+        "hidden"
+      )
   ) {
 
     document.body.classList.remove(
@@ -1905,19 +2528,22 @@ function closeEditor() {
 }
 
 
-/* ==============================
-   TEMPLATE DURATION
-============================== */
+
+/* ========================================
+   TEMPLATE DEFAULT DURATION
+======================================== */
 
 function applyTemplateDuration() {
 
-  const selected =
+  const selectedTemplate =
     templates[
       templateSelect.value
     ];
 
 
-  if (!selected) {
+  if (
+    !selectedTemplate
+  ) {
 
     return;
 
@@ -1930,25 +2556,29 @@ function applyTemplateDuration() {
     );
 
 
-  const endMinutes =
+  const newEndMinutes =
     Math.min(
+
       startMinutes +
-      selected.duration,
+      selectedTemplate.duration,
+
       1440
+
     );
 
 
   endTimeSelect.value =
     minutesToTime(
-      endMinutes
+      newEndMinutes
     );
 
 }
 
 
-/* ==============================
-   SAVE EVENT
-============================== */
+
+/* ========================================
+   SAVE ITEM
+======================================== */
 
 async function saveItem(event) {
 
@@ -1964,7 +2594,13 @@ async function saveItem(event) {
   }
 
 
-  formMessage.textContent = "";
+  formMessage.textContent =
+    "";
+
+
+  formMessage.classList.remove(
+    "success"
+  );
 
 
   const type =
@@ -1983,16 +2619,23 @@ async function saveItem(event) {
     endTimeSelect.value;
 
 
+
+  /* DATE VALIDATION */
+
   if (!date) {
 
     showFormError(
       "Please select a date."
     );
 
+
     return;
 
   }
 
+
+
+  /* TIME VALIDATION */
 
   const startMinutes =
     timeToMinutes(
@@ -2007,27 +2650,37 @@ async function saveItem(event) {
 
 
   if (
-    endMinutes <= startMinutes
+    endMinutes <=
+    startMinutes
   ) {
 
     showFormError(
       "The end time must be later than the start time."
     );
 
+
     return;
 
   }
 
 
+
   let title;
 
-  let template = null;
+  let template =
+    null;
 
   let category;
 
 
+
+  /* ========================================
+     SHARED PLAN
+  ======================================== */
+
   if (
-    type === "plan"
+    type ===
+    "plan"
   ) {
 
     template =
@@ -2048,13 +2701,20 @@ async function saveItem(event) {
         "Please select a template."
       );
 
+
       return;
 
     }
 
 
+
+    /*
+     * CUSTOM EVENT
+     */
+
     if (
-      template === "custom"
+      template ===
+      "custom"
     ) {
 
       title =
@@ -2069,13 +2729,22 @@ async function saveItem(event) {
           "Please type the event name."
         );
 
+
         customEventTitle.focus();
+
 
         return;
 
       }
 
-    } else {
+    }
+
+
+    /*
+     * NORMAL TEMPLATE
+     */
+
+    else {
 
       title =
         selectedTemplate.title;
@@ -2086,7 +2755,15 @@ async function saveItem(event) {
     category =
       "plan";
 
-  } else {
+  }
+
+
+
+  /* ========================================
+     OWNER SCHEDULE
+  ======================================== */
+
+  else {
 
     if (
       !isOwner()
@@ -2095,6 +2772,7 @@ async function saveItem(event) {
       showFormError(
         "Only the owner can change the schedule."
       );
+
 
       return;
 
@@ -2106,18 +2784,27 @@ async function saveItem(event) {
 
 
     title =
-      category === "work"
+      category ===
+        "work"
         ? "Work"
         : "Busy";
 
   }
 
 
-  /* Prevent overlapping calendar entries */
+
+  /* ========================================
+     OVERLAP CHECK
+  ======================================== */
 
   const conflictingItem =
     state.items.find(
       item => {
+
+        /*
+         * IGNORE CURRENT ITEM
+         * WHILE EDITING
+         */
 
         if (
           item.id ===
@@ -2144,10 +2831,13 @@ async function saveItem(event) {
 
 
         return (
+
           startMinutes <
             existingEnd &&
+
           endMinutes >
             existingStart
+
         );
 
       }
@@ -2159,13 +2849,21 @@ async function saveItem(event) {
   ) {
 
     showFormError(
+
       `This overlaps with “${conflictingItem.title}” from ${conflictingItem.start} to ${conflictingItem.end}.`
+
     );
+
 
     return;
 
   }
 
+
+
+  /* ========================================
+     DATABASE PAYLOAD
+  ======================================== */
 
   const payload = {
 
@@ -2175,7 +2873,8 @@ async function saveItem(event) {
     title,
 
     template:
-      type === "plan"
+      type ===
+        "plan"
         ? template
         : null,
 
@@ -2189,11 +2888,14 @@ async function saveItem(event) {
       end,
 
     notes:
-      notesInput.value.trim(),
+      notesInput
+        .value
+        .trim(),
 
     category
 
   };
+
 
 
   saveEventButton.disabled =
@@ -2206,6 +2908,11 @@ async function saveItem(event) {
 
   let error;
 
+
+
+  /* ========================================
+     UPDATE EXISTING
+  ======================================== */
 
   if (
     state.editingId
@@ -2228,7 +2935,15 @@ async function saveItem(event) {
     error =
       result.error;
 
-  } else {
+  }
+
+
+
+  /* ========================================
+     CREATE NEW
+  ======================================== */
+
+  else {
 
     const result =
       await supabase
@@ -2246,13 +2961,20 @@ async function saveItem(event) {
   }
 
 
+
   saveEventButton.disabled =
     false;
 
 
+
+  /* ========================================
+     ERROR
+  ======================================== */
+
   if (error) {
 
     console.error(
+      "Save error:",
       error
     );
 
@@ -2261,7 +2983,8 @@ async function saveItem(event) {
       state.editingId
         ? "Save changes"
         : (
-            type === "plan"
+            type ===
+              "plan"
               ? "Add event"
               : "Add schedule"
           );
@@ -2271,10 +2994,16 @@ async function saveItem(event) {
       "Could not save the event."
     );
 
+
     return;
 
   }
 
+
+
+  /* ========================================
+     SUCCESS
+  ======================================== */
 
   state.selectedDate =
     date;
@@ -2288,9 +3017,15 @@ async function saveItem(event) {
 
   state.currentDate =
     new Date(
-      selectedDateObject.getFullYear(),
-      selectedDateObject.getMonth(),
+
+      selectedDateObject
+        .getFullYear(),
+
+      selectedDateObject
+        .getMonth(),
+
       1
+
     );
 
 
@@ -2305,16 +3040,19 @@ async function saveItem(event) {
 
   closeEditor();
 
+
   renderTimeline();
+
 
   renderCalendar();
 
 }
 
 
-/* ==============================
-   DELETE EVENT
-============================== */
+
+/* ========================================
+   DELETE ITEM
+======================================== */
 
 async function deleteCurrentItem() {
 
@@ -2337,12 +3075,15 @@ async function deleteCurrentItem() {
 
   if (
     !item ||
-    !canEditItem(item)
+    !canEditItem(
+      item
+    )
   ) {
 
     return;
 
   }
+
 
 
   deleteEventButton.disabled =
@@ -2351,6 +3092,7 @@ async function deleteCurrentItem() {
 
   deleteEventButton.textContent =
     "Deleting...";
+
 
 
   const {
@@ -2367,6 +3109,7 @@ async function deleteCurrentItem() {
       );
 
 
+
   deleteEventButton.disabled =
     false;
 
@@ -2375,9 +3118,11 @@ async function deleteCurrentItem() {
     "Delete";
 
 
+
   if (error) {
 
     console.error(
+      "Delete error:",
       error
     );
 
@@ -2386,9 +3131,11 @@ async function deleteCurrentItem() {
       "Could not delete the event."
     );
 
+
     return;
 
   }
+
 
 
   await loadItems();
@@ -2396,23 +3143,341 @@ async function deleteCurrentItem() {
 
   closeEditor();
 
+
   renderTimeline();
+
 
   renderCalendar();
 
 }
 
 
-/* ==============================
-   TIME OPTIONS
-============================== */
+
+/* ========================================
+   OLD LOCAL STORAGE MIGRATION
+======================================== */
+
+async function migrateOldLocalItems() {
+
+  const migrationMarker =
+    "shared_calendar_supabase_migrated_v1";
+
+
+  /*
+   * ONLY OWNER SHOULD IMPORT
+   * OLD LOCAL SCHEDULES
+   */
+
+  if (
+    !isOwner()
+  ) {
+
+    return;
+
+  }
+
+
+  /*
+   * ALREADY MIGRATED
+   */
+
+  if (
+    localStorage.getItem(
+      migrationMarker
+    ) ===
+    "yes"
+  ) {
+
+    return;
+
+  }
+
+
+  /*
+   * DON'T IMPORT INTO
+   * NON-EMPTY DATABASE
+   */
+
+  if (
+    state.items.length > 0
+  ) {
+
+    localStorage.setItem(
+      migrationMarker,
+      "yes"
+    );
+
+
+    return;
+
+  }
+
+
+
+  const possibleKeys = [
+
+    "shared_calendar_items_v2",
+
+    "shared_calendar_items_v1"
+
+  ];
+
+
+  let oldItems =
+    [];
+
+
+
+  for (
+    const key
+    of possibleKeys
+  ) {
+
+    try {
+
+      const raw =
+        localStorage.getItem(
+          key
+        );
+
+
+      if (!raw) {
+
+        continue;
+
+      }
+
+
+      const parsed =
+        JSON.parse(
+          raw
+        );
+
+
+      if (
+        Array.isArray(
+          parsed
+        ) &&
+        parsed.length
+      ) {
+
+        oldItems =
+          parsed;
+
+
+        break;
+
+      }
+
+    } catch (error) {
+
+      console.warn(
+        "Could not read old calendar data:",
+        error
+      );
+
+    }
+
+  }
+
+
+
+  /*
+   * NOTHING TO IMPORT
+   */
+
+  if (
+    !oldItems.length
+  ) {
+
+    localStorage.setItem(
+      migrationMarker,
+      "yes"
+    );
+
+
+    return;
+
+  }
+
+
+
+  const rows =
+    [];
+
+
+
+  for (
+    const item
+    of oldItems
+  ) {
+
+    if (
+      !item.date ||
+      !item.start ||
+      !item.end
+    ) {
+
+      continue;
+
+    }
+
+
+
+    const type =
+      item.type ===
+        "schedule"
+        ? "schedule"
+        : "plan";
+
+
+    let category;
+
+
+
+    if (
+      type ===
+      "schedule"
+    ) {
+
+      category =
+        item.category ===
+          "busy"
+          ? "busy"
+          : "work";
+
+    } else {
+
+      category =
+        "plan";
+
+    }
+
+
+
+    rows.push({
+
+      item_type:
+        type,
+
+      title:
+        item.title ||
+        (
+          type ===
+            "schedule"
+            ? (
+                category ===
+                  "work"
+                  ? "Work"
+                  : "Busy"
+              )
+            : "Plan"
+        ),
+
+      template:
+        type ===
+          "plan"
+          ? (
+              item.template ||
+              "custom"
+            )
+          : null,
+
+      event_date:
+        item.date,
+
+      start_time:
+        normaliseDatabaseTime(
+          item.start
+        ),
+
+      end_time:
+        normaliseDatabaseTime(
+          item.end
+        ),
+
+      notes:
+        item.notes || "",
+
+      category
+
+    });
+
+  }
+
+
+
+  if (
+    !rows.length
+  ) {
+
+    localStorage.setItem(
+      migrationMarker,
+      "yes"
+    );
+
+
+    return;
+
+  }
+
+
+
+  const {
+    error
+  } =
+    await supabase
+      .from(
+        "calendar_items"
+      )
+      .insert(
+        rows
+      );
+
+
+
+  if (error) {
+
+    console.error(
+      "Old calendar import failed:",
+      error
+    );
+
+
+    return;
+
+  }
+
+
+
+  localStorage.setItem(
+    migrationMarker,
+    "yes"
+  );
+
+}
+
+
+
+/* ========================================
+   BUILD TIME OPTIONS
+======================================== */
 
 function buildTimeOptions() {
 
-  startTimeSelect.innerHTML = "";
+  startTimeSelect.innerHTML =
+    "";
 
-  endTimeSelect.innerHTML = "";
 
+  endTimeSelect.innerHTML =
+    "";
+
+
+
+  /*
+   * START:
+   * 00:00 → 23:30
+   */
 
   for (
     let index = 0;
@@ -2427,14 +3492,22 @@ function buildTimeOptions() {
 
 
     startTimeSelect.add(
+
       new Option(
         time,
         time
       )
+
     );
 
   }
 
+
+
+  /*
+   * END:
+   * 00:30 → 24:00
+   */
 
   for (
     let index = 1;
@@ -2449,10 +3522,12 @@ function buildTimeOptions() {
 
 
     endTimeSelect.add(
+
       new Option(
         time,
         time
       )
+
     );
 
   }
@@ -2460,88 +3535,134 @@ function buildTimeOptions() {
 }
 
 
-/* ==============================
-   HELPERS
-============================== */
+
+/* ========================================
+   GET ITEMS FOR DATE
+======================================== */
 
 function getItemsForDate(
   dateKey
 ) {
 
   return state.items
+
     .filter(
       item =>
         item.date ===
         dateKey
     )
+
     .sort(
       (
         first,
         second
-      ) =>
-        timeToMinutes(
-          first.start
-        ) -
-        timeToMinutes(
-          second.start
-        )
+      ) => {
+
+        return (
+
+          timeToMinutes(
+            first.start
+          )
+
+          -
+
+          timeToMinutes(
+            second.start
+          )
+
+        );
+
+      }
     );
 
 }
 
+
+
+/* ========================================
+   GET MEMBER DISPLAY NAME
+======================================== */
 
 function getMemberName(
   userId
 ) {
 
   return (
-    state.members.get(
-      userId
-    )?.display_name ||
+
+    state.members
+      .get(
+        userId
+      )
+      ?.display_name
+
+    ||
+
     "member"
+
   );
 
 }
 
 
+
+/* ========================================
+   DATE HELPERS
+======================================== */
+
 function makeDateKey(
+
   year,
+
   zeroBasedMonth,
+
   day
+
 ) {
 
   const month =
     String(
       zeroBasedMonth + 1
-    ).padStart(
-      2,
-      "0"
-    );
+    )
+      .padStart(
+        2,
+        "0"
+      );
 
 
   const date =
     String(
       day
-    ).padStart(
-      2,
-      "0"
-    );
+    )
+      .padStart(
+        2,
+        "0"
+      );
 
 
-  return `${year}-${month}-${date}`;
-
-}
-
-
-function toDateKey(date) {
-
-  return makeDateKey(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate()
+  return (
+    `${year}-${month}-${date}`
   );
 
 }
+
+
+
+function toDateKey(
+  date
+) {
+
+  return makeDateKey(
+
+    date.getFullYear(),
+
+    date.getMonth(),
+
+    date.getDate()
+
+  );
+
+}
+
 
 
 function formatDateLong(
@@ -2554,22 +3675,40 @@ function formatDateLong(
     );
 
 
-  return new Intl.DateTimeFormat(
-    "en-AU",
-    {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    }
-  ).format(
-    date
-  );
+  return new Intl
+    .DateTimeFormat(
+      "en-AU",
+      {
+
+        weekday:
+          "long",
+
+        day:
+          "numeric",
+
+        month:
+          "long",
+
+        year:
+          "numeric"
+
+      }
+    )
+    .format(
+      date
+    );
 
 }
 
 
-function indexToTime(index) {
+
+/* ========================================
+   TIME HELPERS
+======================================== */
+
+function indexToTime(
+  index
+) {
 
   return minutesToTime(
     index * 30
@@ -2578,12 +3717,14 @@ function indexToTime(index) {
 }
 
 
+
 function minutesToTime(
   totalMinutes
 ) {
 
   if (
-    totalMinutes === 1440
+    totalMinutes ===
+    1440
   ) {
 
     return "24:00";
@@ -2598,34 +3739,47 @@ function minutesToTime(
 
 
   const minutes =
-    totalMinutes % 60;
+    totalMinutes %
+    60;
 
 
   return (
+
     String(
       hours
-    ).padStart(
-      2,
-      "0"
     )
+      .padStart(
+        2,
+        "0"
+      )
+
     +
+
     ":"
+
     +
+
     String(
       minutes
-    ).padStart(
-      2,
-      "0"
     )
+      .padStart(
+        2,
+        "0"
+      )
+
   );
 
 }
 
 
-function timeToMinutes(time) {
+
+function timeToMinutes(
+  time
+) {
 
   if (
-    time === "24:00"
+    time ===
+    "24:00"
   ) {
 
     return 1440;
@@ -2640,8 +3794,8 @@ function timeToMinutes(time) {
     normaliseDatabaseTime(
       time
     )
-    .split(":")
-    .map(Number);
+      .split(":")
+      .map(Number);
 
 
   return (
@@ -2650,6 +3804,7 @@ function timeToMinutes(time) {
   );
 
 }
+
 
 
 function normaliseDatabaseTime(
@@ -2665,13 +3820,19 @@ function normaliseDatabaseTime(
 
   return String(
     time
-  ).slice(
-    0,
-    5
-  );
+  )
+    .slice(
+      0,
+      5
+    );
 
 }
 
+
+
+/* ========================================
+   ERROR MESSAGE
+======================================== */
 
 function showFormError(
   message
@@ -2680,8 +3841,18 @@ function showFormError(
   formMessage.textContent =
     message;
 
+
+  formMessage.classList.remove(
+    "success"
+  );
+
 }
 
+
+
+/* ========================================
+   SYNC STATUS
+======================================== */
 
 function setSyncStatus(
   text,
