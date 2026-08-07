@@ -1,4 +1,4 @@
-:root {
+\:root {
   --background: #f8f5f2;
 
   --surface: #ffffff;
@@ -55,7 +55,6 @@ body {
   margin: 0;
 
   background: var(--background);
-
   color: var(--text);
 }
 
@@ -84,7 +83,7 @@ input:disabled,
 select:disabled,
 textarea:disabled {
   cursor: default;
-  opacity: 0.72;
+  opacity: 0.7;
 }
 
 
@@ -100,7 +99,6 @@ textarea:focus-visible {
 .hidden {
   display: none !important;
 }
-
 
 
 /* LOGIN */
@@ -120,7 +118,6 @@ textarea:focus-visible {
   width: min(430px, 100%);
 
   border: 1px solid var(--border);
-
   border-radius: 26px;
 
   background: var(--surface);
@@ -128,34 +125,31 @@ textarea:focus-visible {
   padding: 34px;
 
   box-shadow:
-    0 20px 60px rgba(65, 45, 40, 0.09);
+    0 20px 60px
+    rgba(65, 45, 40, 0.09);
 }
 
 
 .login-heading {
   margin-bottom: 26px;
-
   text-align: center;
 }
 
 
 .login-heading h1 {
   margin: 0;
-
   font-size: 2rem;
 }
 
 
 .login-description {
   margin: 10px 0 0;
-
   color: var(--muted);
 }
 
 
 .login-form {
   display: grid;
-
   gap: 18px;
 }
 
@@ -174,7 +168,6 @@ textarea:focus-visible {
   width: 100%;
 
   border: 1px solid var(--border);
-
   border-radius: var(--radius-small);
 
   background: #fff;
@@ -188,7 +181,6 @@ textarea:focus-visible {
 .full-button {
   width: 100%;
 }
-
 
 
 /* MAIN APP */
@@ -229,7 +221,6 @@ textarea:focus-visible {
 
 .account-info > div:last-child {
   display: flex;
-
   flex-direction: column;
 }
 
@@ -241,10 +232,7 @@ textarea:focus-visible {
 
 .account-info span {
   color: var(--muted);
-
   font-size: 0.78rem;
-
-  text-transform: capitalize;
 }
 
 
@@ -259,7 +247,6 @@ textarea:focus-visible {
   border-radius: 50%;
 
   background: var(--accent-soft);
-
   color: var(--accent);
 }
 
@@ -319,20 +306,12 @@ h2 {
 
 
 h1 {
-  font-size: clamp(
-    1.7rem,
-    4vw,
-    2.6rem
-  );
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
 }
 
 
 h2 {
-  font-size: clamp(
-    1.25rem,
-    3vw,
-    1.7rem
-  );
+  font-size: clamp(1.25rem, 3vw, 1.7rem);
 }
 
 
@@ -345,7 +324,6 @@ h2 {
 
   gap: 10px;
 }
-
 
 
 /* BUTTONS */
@@ -416,7 +394,6 @@ h2 {
 }
 
 
-
 /* MONTH CALENDAR */
 
 .calendar-wrapper {
@@ -456,7 +433,6 @@ h2 {
   font-weight: 700;
 
   text-align: center;
-
   text-transform: uppercase;
 }
 
@@ -474,7 +450,6 @@ h2 {
   overflow: hidden;
 
   border: 1px solid var(--border);
-
   border-radius: var(--radius-medium);
 
   background: var(--surface);
@@ -517,7 +492,6 @@ button.day-cell:hover {
 
 .day-cell.today .day-number {
   background: var(--accent);
-
   color: #fff;
 }
 
@@ -558,7 +532,6 @@ button.day-cell:hover {
   padding: 5px 7px;
 
   font-size: 0.72rem;
-
   line-height: 1.2;
 
   text-overflow: ellipsis;
@@ -569,21 +542,18 @@ button.day-cell:hover {
 
 .summary-entry.schedule.work {
   background: var(--work-soft);
-
   color: #3e596a;
 }
 
 
 .summary-entry.schedule.busy {
   background: var(--busy-soft);
-
   color: #644d45;
 }
 
 
 .summary-entry.plan {
   background: var(--plan-soft);
-
   color: var(--accent-dark);
 }
 
@@ -602,7 +572,6 @@ button.day-cell:hover {
 
   text-align: center;
 }
-
 
 
 /* MODALS */
@@ -640,7 +609,6 @@ button.day-cell:hover {
   overflow-y: auto;
 
   border: 1px solid var(--border);
-
   border-radius: var(--radius-large);
 
   background: var(--surface);
@@ -658,7 +626,6 @@ button.day-cell:hover {
 
 .editor-panel {
   width: min(520px, 100%);
-
   padding-bottom: 6px;
 }
 
@@ -695,7 +662,6 @@ button.day-cell:hover {
 
   font-size: 0.82rem;
 }
-
 
 
 /* LEGEND */
@@ -751,8 +717,7 @@ button.day-cell:hover {
 }
 
 
-
-/* DAILY TIMELINE */
+/* TIMELINE */
 
 .timeline {
   position: relative;
@@ -778,7 +743,6 @@ button.day-cell:hover {
   color: var(--muted);
 
   font-size: 0.78rem;
-
   line-height: 1;
 
   text-align: right;
@@ -795,7 +759,6 @@ button.day-cell:hover {
   min-width: 0;
 
   border: 0;
-
   border-radius: 0;
 
   background: transparent;
@@ -909,7 +872,6 @@ button.day-cell:hover {
 }
 
 
-
 /* EVENT FORM */
 
 .event-form {
@@ -918,6 +880,14 @@ button.day-cell:hover {
   gap: 17px;
 
   padding: 22px 24px 24px;
+}
+
+
+#planFields,
+#scheduleFields {
+  display: grid;
+
+  gap: 17px;
 }
 
 
@@ -947,6 +917,18 @@ button.day-cell:hover {
   padding: 11px 12px;
 
   color: var(--text);
+}
+
+
+.event-form select optgroup {
+  font-weight: 700;
+  color: var(--accent-dark);
+}
+
+
+.event-form select option {
+  color: var(--text);
+  font-weight: 400;
 }
 
 
@@ -993,11 +975,6 @@ button.day-cell:hover {
 }
 
 
-.form-message.success {
-  color: var(--success);
-}
-
-
 .form-actions {
   display: flex;
 
@@ -1008,7 +985,6 @@ button.day-cell:hover {
 
   margin-top: 3px;
 }
-
 
 
 /* MOBILE */
@@ -1026,8 +1002,7 @@ button.day-cell:hover {
 
 
   .app-shell {
-    width:
-      min(100% - 20px, 1180px);
+    width: min(100% - 20px, 1180px);
 
     padding-top: 17px;
   }

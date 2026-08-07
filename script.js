@@ -3,9 +3,9 @@ import {
 } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 
-/* ========================================
+/* ==============================
    SUPABASE
-======================================== */
+============================== */
 
 const SUPABASE_URL =
   "https://uyofqzrgyubdsgheuhbl.supabase.co";
@@ -20,12 +20,13 @@ const supabase = createClient(
 );
 
 
-
-/* ========================================
+/* ==============================
    TEMPLATES
-======================================== */
+============================== */
 
 const templates = {
+
+  /* TOGETHER */
 
   "date-night": {
     title: "Date night",
@@ -37,10 +38,51 @@ const templates = {
     duration: 360
   },
 
+  monthsary: {
+    title: "Monthsary",
+    duration: 240
+  },
+
+  anniversary: {
+    title: "Anniversary",
+    duration: 360
+  },
+
+
+  /* WIND DOWN */
+
   "reading-night": {
     title: "Reading night",
     duration: 90
   },
+
+  "cozy-night": {
+    title: "Cozy night",
+    duration: 120
+  },
+
+  "wind-down": {
+    title: "Wind-down time",
+    duration: 90
+  },
+
+  "creative-night": {
+    title: "Creative night",
+    duration: 120
+  },
+
+  "quiet-time": {
+    title: "Quiet time",
+    duration: 60
+  },
+
+  "self-care-night": {
+    title: "Self-care night",
+    duration: 90
+  },
+
+
+  /* FUN */
 
   "game-night": {
     title: "Game night",
@@ -54,11 +96,11 @@ const templates = {
 
   "movie-night": {
     title: "Movie night",
-    duration: 150
+    duration: 180
   },
 
-  dinner: {
-    title: "Dinner",
+  "eat-out": {
+    title: "Eat out",
     duration: 120
   },
 
@@ -67,33 +109,30 @@ const templates = {
     duration: 180
   },
 
-  "eat-somewhere": {
-    title: "Eat somewhere",
-    duration: 120
-  },
-
-  cafe: {
-    title: "Café date",
-    duration: 120
-  },
-
   walk: {
     title: "Walk",
     duration: 90
   },
 
+  "try-something-new": {
+    title: "Try something new",
+    duration: 180
+  },
+
+
+  /* OTHER */
+
   custom: {
-    title: "Custom event",
+    title: "",
     duration: 60
   }
 
 };
 
 
-
-/* ========================================
+/* ==============================
    STATE
-======================================== */
+============================== */
 
 const state = {
 
@@ -118,10 +157,9 @@ const state = {
 };
 
 
-
-/* ========================================
-   AUTH ELEMENTS
-======================================== */
+/* ==============================
+   ELEMENTS
+============================== */
 
 const authView =
   document.querySelector("#authView");
@@ -157,11 +195,6 @@ const syncStatus =
   document.querySelector("#syncStatus");
 
 
-
-/* ========================================
-   MONTH ELEMENTS
-======================================== */
-
 const monthLabel =
   document.querySelector("#monthLabel");
 
@@ -178,11 +211,6 @@ const todayButton =
   document.querySelector("#todayButton");
 
 
-
-/* ========================================
-   DAY ELEMENTS
-======================================== */
-
 const dayModal =
   document.querySelector("#dayModal");
 
@@ -198,11 +226,6 @@ const closeDayModalButton =
 const addScheduleButton =
   document.querySelector("#addScheduleButton");
 
-
-
-/* ========================================
-   EDITOR ELEMENTS
-======================================== */
 
 const eventModal =
   document.querySelector("#eventModal");
@@ -246,6 +269,12 @@ const scheduleFields =
 const templateSelect =
   document.querySelector("#templateSelect");
 
+const customTitleField =
+  document.querySelector("#customTitleField");
+
+const customEventTitle =
+  document.querySelector("#customEventTitle");
+
 const scheduleTypeSelect =
   document.querySelector("#scheduleType");
 
@@ -262,20 +291,20 @@ const notesInput =
   document.querySelector("#eventNotes");
 
 
-
-/* ========================================
+/* ==============================
    START
-======================================== */
+============================== */
 
 buildTimeOptions();
+
 attachEventListeners();
+
 boot();
 
 
-
-/* ========================================
-   APP BOOT
-======================================== */
+/* ==============================
+   BOOT
+============================== */
 
 async function boot() {
 
@@ -283,6 +312,7 @@ async function boot() {
     "connecting...",
     true
   );
+
 
   const {
     data: {
@@ -336,9 +366,7 @@ async function boot() {
       ) {
 
         setTimeout(() => {
-
           clearAuthenticatedApp();
-
         }, 0);
 
       }
@@ -349,10 +377,9 @@ async function boot() {
 }
 
 
-
-/* ========================================
-   EVENT LISTENERS
-======================================== */
+/* ==============================
+   LISTENERS
+============================== */
 
 function attachEventListeners() {
 
@@ -426,13 +453,9 @@ function attachEventListeners() {
     () => {
 
       openEditor({
-
         type: "schedule",
-
         start: "09:00",
-
         end: "17:00"
-
       });
 
     }
@@ -459,7 +482,13 @@ function attachEventListeners() {
 
   templateSelect.addEventListener(
     "change",
-    applyTemplateDuration
+    () => {
+
+      updateCustomTitleField();
+
+      applyTemplateDuration();
+
+    }
   );
 
 
@@ -560,10 +589,39 @@ function attachEventListeners() {
 }
 
 
+/* ==============================
+   CUSTOM EVENT
+============================== */
 
-/* ========================================
+function updateCustomTitleField() {
+
+  const customSelected =
+    templateSelect.value ===
+    "custom";
+
+
+  customTitleField.classList.toggle(
+    "hidden",
+    !customSelected
+  );
+
+
+  customEventTitle.required =
+    customSelected;
+
+
+  if (!customSelected) {
+
+    customEventTitle.value = "";
+
+  }
+
+}
+
+
+/* ==============================
    LOGIN
-======================================== */
+============================== */
 
 async function login(event) {
 
@@ -591,11 +649,8 @@ async function login(event) {
   } =
     await supabase.auth
       .signInWithPassword({
-
         email,
-
         password
-
       });
 
 
@@ -630,11 +685,6 @@ async function login(event) {
 }
 
 
-
-/* ========================================
-   LOGOUT
-======================================== */
-
 async function logout() {
 
   await supabase.auth.signOut();
@@ -644,10 +694,9 @@ async function logout() {
 }
 
 
-
-/* ========================================
-   LOAD USER
-======================================== */
+/* ==============================
+   LOAD ACCOUNT
+============================== */
 
 async function loadAuthenticatedApp(
   session
@@ -738,37 +787,29 @@ async function loadAuthenticatedApp(
 
 
   currentUserName.textContent =
-  profile.display_name;
-
-currentUserRole.textContent =
-  profile.role === "girlfriend"
-    ? "my love"
-    : profile.role;
-
-addScheduleButton.classList.toggle(
-  "hidden",
-  profile.role !== "owner"
-);
-
-authView.classList.add(
-  "hidden"
-);
-
-appView.classList.remove(
-  "hidden"
-);
+    profile.display_name;
 
 
-  await loadItems();
+  currentUserRole.textContent =
+    profile.role === "girlfriend"
+      ? "my love"
+      : profile.role;
 
 
-  /*
-   * If this is the owner's desktop
-   * browser and the old version had
-   * calendar items saved locally,
-   * import them once.
-   */
-  await migrateOldLocalItems();
+  addScheduleButton.classList.toggle(
+    "hidden",
+    profile.role !== "owner"
+  );
+
+
+  authView.classList.add(
+    "hidden"
+  );
+
+
+  appView.classList.remove(
+    "hidden"
+  );
 
 
   await loadItems();
@@ -788,10 +829,9 @@ appView.classList.remove(
 }
 
 
-
-/* ========================================
-   CLEAR USER
-======================================== */
+/* ==============================
+   CLEAR ACCOUNT
+============================== */
 
 function clearAuthenticatedApp() {
 
@@ -819,17 +859,13 @@ function clearAuthenticatedApp() {
 
 
   closeEditor();
+
   closeDayView();
 
   showLogin();
 
 }
 
-
-
-/* ========================================
-   LOGIN VIEW
-======================================== */
 
 function showLogin() {
 
@@ -844,10 +880,9 @@ function showLogin() {
 }
 
 
-
-/* ========================================
-   LOAD DATABASE ITEMS
-======================================== */
+/* ==============================
+   LOAD CALENDAR
+============================== */
 
 async function loadItems() {
 
@@ -916,11 +951,6 @@ async function loadItems() {
 }
 
 
-
-/* ========================================
-   DATABASE → APP FORMAT
-======================================== */
-
 function mapDatabaseItem(item) {
 
   return {
@@ -964,10 +994,9 @@ function mapDatabaseItem(item) {
 }
 
 
-
-/* ========================================
+/* ==============================
    REALTIME
-======================================== */
+============================== */
 
 function subscribeToRealtime() {
 
@@ -988,19 +1017,12 @@ function subscribeToRealtime() {
         "shared-calendar-live"
       )
       .on(
-
         "postgres_changes",
-
         {
-
           event: "*",
-
           schema: "public",
-
           table: "calendar_items"
-
         },
-
         async () => {
 
           await loadItems();
@@ -1019,38 +1041,31 @@ function subscribeToRealtime() {
           }
 
         }
-
       )
       .subscribe();
 
 }
 
 
-
-/* ========================================
+/* ==============================
    MONTH CALENDAR
-======================================== */
+============================== */
 
 function renderCalendar() {
 
   const year =
-    state.currentDate
-      .getFullYear();
+    state.currentDate.getFullYear();
 
   const month =
-    state.currentDate
-      .getMonth();
+    state.currentDate.getMonth();
 
 
   monthLabel.textContent =
     new Intl.DateTimeFormat(
       "en-AU",
       {
-
         month: "long",
-
         year: "numeric"
-
       }
     ).format(
       new Date(
@@ -1086,16 +1101,13 @@ function renderCalendar() {
 
   const totalCells =
     Math.max(
-
       35,
-
       Math.ceil(
         (
           mondayFirstOffset +
           daysInMonth
         ) / 7
       ) * 7
-
     );
 
 
@@ -1189,9 +1201,7 @@ function renderCalendar() {
       "day-number";
 
     number.textContent =
-      String(
-        dayNumber
-      );
+      String(dayNumber);
 
 
     dayButton.append(
@@ -1304,10 +1314,9 @@ function renderCalendar() {
 }
 
 
-
-/* ========================================
-   OPEN DAY
-======================================== */
+/* ==============================
+   DAY VIEW
+============================== */
 
 function openDayView(
   dateKey
@@ -1338,11 +1347,6 @@ function openDayView(
 }
 
 
-
-/* ========================================
-   CLOSE DAY
-======================================== */
-
 function closeDayView() {
 
   dayModal.classList.add(
@@ -1365,10 +1369,9 @@ function closeDayView() {
 }
 
 
-
-/* ========================================
-   DAILY TIMELINE
-======================================== */
+/* ==============================
+   TIMELINE
+============================== */
 
 function renderTimeline() {
 
@@ -1402,13 +1405,12 @@ function renderTimeline() {
 
 
     /*
-     * Display only:
-     * 09:00
-     * 10:00
-     *
-     * Half-hour remains
-     * an unlabeled dashed line.
-     */
+      Only the full-hour label
+      is visible.
+
+      The hidden xx:30 position
+      is shown with a dashed line.
+    */
     if (
       slotIndex % 2 === 0
     ) {
@@ -1458,12 +1460,6 @@ function renderTimeline() {
       );
 
 
-    slot.setAttribute(
-      "aria-label",
-      `Create a plan at ${slotTime}`
-    );
-
-
     slot.addEventListener(
       "click",
       () => {
@@ -1482,16 +1478,12 @@ function renderTimeline() {
 
 
         openEditor({
-
           type: "plan",
-
           start: slotTime,
-
           end:
             minutesToTime(
               endMinutes
             )
-
         });
 
       }
@@ -1620,10 +1612,9 @@ function renderTimeline() {
 }
 
 
-
-/* ========================================
-   OPEN EDITOR
-======================================== */
+/* ==============================
+   EVENT EDITOR
+============================== */
 
 function openEditor({
 
@@ -1641,10 +1632,6 @@ function openEditor({
   eventForm.reset();
 
   formMessage.textContent = "";
-
-  formMessage.classList.remove(
-    "success"
-  );
 
 
   state.editingId =
@@ -1740,6 +1727,23 @@ function openEditor({
     "";
 
 
+  if (
+    item?.template === "custom"
+  ) {
+
+    customEventTitle.value =
+      item.title || "";
+
+  } else {
+
+    customEventTitle.value = "";
+
+  }
+
+
+  updateCustomTitleField();
+
+
   scheduleTypeSelect.value =
     item?.category === "busy"
       ? "busy"
@@ -1775,12 +1779,9 @@ function openEditor({
 
 
   deleteEventButton.classList.toggle(
-
     "hidden",
-
     !item ||
     !canEdit
-
   );
 
 
@@ -1808,10 +1809,9 @@ function openEditor({
 }
 
 
-
-/* ========================================
-   EDIT PERMISSIONS
-======================================== */
+/* ==============================
+   PERMISSIONS
+============================== */
 
 function canEditItem(item) {
 
@@ -1825,21 +1825,13 @@ function canEditItem(item) {
 
 
   return (
-
     item.type === "plan" &&
-
     item.createdBy ===
       state.user?.id
-
   );
 
 }
 
-
-
-/* ========================================
-   OWNER
-======================================== */
 
 function isOwner() {
 
@@ -1851,16 +1843,14 @@ function isOwner() {
 }
 
 
-
-/* ========================================
-   DISABLE EDITOR
-======================================== */
-
 function setEditorDisabled(
   disabled
 ) {
 
   templateSelect.disabled =
+    disabled;
+
+  customEventTitle.disabled =
     disabled;
 
   scheduleTypeSelect.disabled =
@@ -1881,11 +1871,6 @@ function setEditorDisabled(
 }
 
 
-
-/* ========================================
-   CLOSE EDITOR
-======================================== */
-
 function closeEditor() {
 
   eventModal.classList.add(
@@ -1898,6 +1883,7 @@ function closeEditor() {
   state.editorReadOnly = false;
 
   formMessage.textContent = "";
+
 
   setEditorDisabled(
     false
@@ -1919,10 +1905,9 @@ function closeEditor() {
 }
 
 
-
-/* ========================================
+/* ==============================
    TEMPLATE DURATION
-======================================== */
+============================== */
 
 function applyTemplateDuration() {
 
@@ -1947,12 +1932,9 @@ function applyTemplateDuration() {
 
   const endMinutes =
     Math.min(
-
       startMinutes +
       selected.duration,
-
       1440
-
     );
 
 
@@ -1964,14 +1946,11 @@ function applyTemplateDuration() {
 }
 
 
+/* ==============================
+   SAVE EVENT
+============================== */
 
-/* ========================================
-   SAVE ITEM
-======================================== */
-
-async function saveItem(
-  event
-) {
+async function saveItem(event) {
 
   event.preventDefault();
 
@@ -1986,10 +1965,6 @@ async function saveItem(
 
 
   formMessage.textContent = "";
-
-  formMessage.classList.remove(
-    "success"
-  );
 
 
   const type =
@@ -2078,8 +2053,34 @@ async function saveItem(
     }
 
 
-    title =
-      selectedTemplate.title;
+    if (
+      template === "custom"
+    ) {
+
+      title =
+        customEventTitle
+          .value
+          .trim();
+
+
+      if (!title) {
+
+        showFormError(
+          "Please type the event name."
+        );
+
+        customEventTitle.focus();
+
+        return;
+
+      }
+
+    } else {
+
+      title =
+        selectedTemplate.title;
+
+    }
 
 
     category =
@@ -2112,8 +2113,7 @@ async function saveItem(
   }
 
 
-
-  /* CHECK FOR OVERLAP */
+  /* Prevent overlapping calendar entries */
 
   const conflictingItem =
     state.items.find(
@@ -2144,13 +2144,10 @@ async function saveItem(
 
 
         return (
-
           startMinutes <
             existingEnd &&
-
           endMinutes >
             existingStart
-
         );
 
       }
@@ -2162,15 +2159,12 @@ async function saveItem(
   ) {
 
     showFormError(
-
       `This overlaps with “${conflictingItem.title}” from ${conflictingItem.start} to ${conflictingItem.end}.`
-
     );
 
     return;
 
   }
-
 
 
   const payload = {
@@ -2195,9 +2189,7 @@ async function saveItem(
       end,
 
     notes:
-      notesInput
-        .value
-        .trim(),
+      notesInput.value.trim(),
 
     category
 
@@ -2296,15 +2288,9 @@ async function saveItem(
 
   state.currentDate =
     new Date(
-
-      selectedDateObject
-        .getFullYear(),
-
-      selectedDateObject
-        .getMonth(),
-
+      selectedDateObject.getFullYear(),
+      selectedDateObject.getMonth(),
       1
-
     );
 
 
@@ -2326,10 +2312,9 @@ async function saveItem(
 }
 
 
-
-/* ========================================
-   DELETE ITEM
-======================================== */
+/* ==============================
+   DELETE EVENT
+============================== */
 
 async function deleteCurrentItem() {
 
@@ -2385,6 +2370,7 @@ async function deleteCurrentItem() {
   deleteEventButton.disabled =
     false;
 
+
   deleteEventButton.textContent =
     "Delete";
 
@@ -2417,259 +2403,15 @@ async function deleteCurrentItem() {
 }
 
 
-
-/* ========================================
-   OLD LOCAL STORAGE MIGRATION
-======================================== */
-
-async function migrateOldLocalItems() {
-
-  const migrationMarker =
-    "shared_calendar_supabase_migrated_v1";
-
-
-  if (
-    !isOwner() ||
-    localStorage.getItem(
-      migrationMarker
-    ) === "yes" ||
-    state.items.length > 0
-  ) {
-
-    return;
-
-  }
-
-
-  const possibleKeys = [
-
-    "shared_calendar_items_v2",
-
-    "shared_calendar_items_v1"
-
-  ];
-
-
-  let oldItems = [];
-
-
-  for (
-    const key
-    of possibleKeys
-  ) {
-
-    try {
-
-      const raw =
-        localStorage.getItem(
-          key
-        );
-
-
-      if (!raw) {
-
-        continue;
-
-      }
-
-
-      const parsed =
-        JSON.parse(
-          raw
-        );
-
-
-      if (
-        Array.isArray(
-          parsed
-        ) &&
-        parsed.length
-      ) {
-
-        oldItems =
-          parsed;
-
-        break;
-
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "Could not read old calendar data.",
-        error
-      );
-
-    }
-
-  }
-
-
-  if (
-    !oldItems.length
-  ) {
-
-    localStorage.setItem(
-      migrationMarker,
-      "yes"
-    );
-
-    return;
-
-  }
-
-
-  const rows = [];
-
-
-  for (
-    const item
-    of oldItems
-  ) {
-
-    if (
-      !item.date ||
-      !item.start ||
-      !item.end
-    ) {
-
-      continue;
-
-    }
-
-
-    const type =
-      item.type === "schedule"
-        ? "schedule"
-        : "plan";
-
-
-    let category;
-
-
-    if (
-      type === "schedule"
-    ) {
-
-      category =
-        item.category === "busy"
-          ? "busy"
-          : "work";
-
-    } else {
-
-      category =
-        "plan";
-
-    }
-
-
-    rows.push({
-
-      item_type:
-        type,
-
-      title:
-        item.title ||
-        (
-          type === "schedule"
-            ? (
-                category === "work"
-                  ? "Work"
-                  : "Busy"
-              )
-            : "Plan"
-        ),
-
-      template:
-        type === "plan"
-          ? (
-              item.template ||
-              "custom"
-            )
-          : null,
-
-      event_date:
-        item.date,
-
-      start_time:
-        normaliseDatabaseTime(
-          item.start
-        ),
-
-      end_time:
-        normaliseDatabaseTime(
-          item.end
-        ),
-
-      notes:
-        item.notes || "",
-
-      category
-
-    });
-
-  }
-
-
-  if (
-    !rows.length
-  ) {
-
-    localStorage.setItem(
-      migrationMarker,
-      "yes"
-    );
-
-    return;
-
-  }
-
-
-  const {
-    error
-  } =
-    await supabase
-      .from(
-        "calendar_items"
-      )
-      .insert(
-        rows
-      );
-
-
-  if (error) {
-
-    console.error(
-      "Old calendar import failed:",
-      error
-    );
-
-    return;
-
-  }
-
-
-  localStorage.setItem(
-    migrationMarker,
-    "yes"
-  );
-
-}
-
-
-
-/* ========================================
+/* ==============================
    TIME OPTIONS
-======================================== */
+============================== */
 
 function buildTimeOptions() {
 
-  startTimeSelect.innerHTML =
-    "";
+  startTimeSelect.innerHTML = "";
 
-  endTimeSelect.innerHTML =
-    "";
+  endTimeSelect.innerHTML = "";
 
 
   for (
@@ -2718,10 +2460,9 @@ function buildTimeOptions() {
 }
 
 
-
-/* ========================================
+/* ==============================
    HELPERS
-======================================== */
+============================== */
 
 function getItemsForDate(
   dateKey
@@ -2737,22 +2478,16 @@ function getItemsForDate(
       (
         first,
         second
-      ) => {
-
-        return (
-          timeToMinutes(
-            first.start
-          ) -
-          timeToMinutes(
-            second.start
-          )
-        );
-
-      }
+      ) =>
+        timeToMinutes(
+          first.start
+        ) -
+        timeToMinutes(
+          second.start
+        )
     );
 
 }
-
 
 
 function getMemberName(
@@ -2769,15 +2504,10 @@ function getMemberName(
 }
 
 
-
 function makeDateKey(
-
   year,
-
   zeroBasedMonth,
-
   day
-
 ) {
 
   const month =
@@ -2798,30 +2528,20 @@ function makeDateKey(
     );
 
 
-  return (
-    `${year}-${month}-${date}`
-  );
+  return `${year}-${month}-${date}`;
 
 }
 
 
-
-function toDateKey(
-  date
-) {
+function toDateKey(date) {
 
   return makeDateKey(
-
     date.getFullYear(),
-
     date.getMonth(),
-
     date.getDate()
-
   );
 
 }
-
 
 
 function formatDateLong(
@@ -2834,39 +2554,28 @@ function formatDateLong(
     );
 
 
-  return new Intl
-    .DateTimeFormat(
-      "en-AU",
-      {
-
-        weekday: "long",
-
-        day: "numeric",
-
-        month: "long",
-
-        year: "numeric"
-
-      }
-    )
-    .format(
-      date
-    );
+  return new Intl.DateTimeFormat(
+    "en-AU",
+    {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }
+  ).format(
+    date
+  );
 
 }
 
 
-
-function indexToTime(
-  index
-) {
+function indexToTime(index) {
 
   return minutesToTime(
     index * 30
   );
 
 }
-
 
 
 function minutesToTime(
@@ -2893,36 +2602,27 @@ function minutesToTime(
 
 
   return (
-
     String(
       hours
     ).padStart(
       2,
       "0"
     )
-
     +
-
     ":"
-
     +
-
     String(
       minutes
     ).padStart(
       2,
       "0"
     )
-
   );
 
 }
 
 
-
-function timeToMinutes(
-  time
-) {
+function timeToMinutes(time) {
 
   if (
     time === "24:00"
@@ -2952,7 +2652,6 @@ function timeToMinutes(
 }
 
 
-
 function normaliseDatabaseTime(
   time
 ) {
@@ -2974,7 +2673,6 @@ function normaliseDatabaseTime(
 }
 
 
-
 function showFormError(
   message
 ) {
@@ -2982,12 +2680,7 @@ function showFormError(
   formMessage.textContent =
     message;
 
-  formMessage.classList.remove(
-    "success"
-  );
-
 }
-
 
 
 function setSyncStatus(

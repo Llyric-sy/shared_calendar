@@ -2,32 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Our Shared Calendar</title>
 
   <link rel="stylesheet" href="style.css" />
-
-  <script
-    type="module"
-    src="script.js"
-  ></script>
+  <script type="module" src="script.js"></script>
 </head>
 
 <body>
 
-  <!-- LOGIN SCREEN -->
-
+  <!-- LOGIN -->
   <main id="authView" class="auth-view">
     <section class="login-card">
+
       <div class="login-heading">
         <p class="eyebrow">our time together</p>
         <h1>shared calendar ♡</h1>
-
         <p class="login-description">
           sign in to see our calendar
         </p>
@@ -37,7 +28,6 @@
 
         <label>
           Email
-
           <input
             id="loginEmail"
             type="email"
@@ -49,7 +39,6 @@
 
         <label>
           Password
-
           <input
             id="loginPassword"
             type="password"
@@ -74,30 +63,25 @@
         </button>
 
       </form>
+
     </section>
   </main>
 
 
-  <!-- CALENDAR APP -->
-
+  <!-- MAIN CALENDAR -->
   <main id="appView" class="app-shell hidden">
 
     <header class="top-bar">
 
       <div class="account-info">
-        <div class="avatar">
-          ♡
-        </div>
+
+        <div class="avatar">♡</div>
 
         <div>
-          <strong id="currentUserName">
-            user
-          </strong>
-
-          <span id="currentUserRole">
-            member
-          </span>
+          <strong id="currentUserName">user</strong>
+          <span id="currentUserRole">member</span>
         </div>
+
       </div>
 
       <div class="account-actions">
@@ -125,15 +109,9 @@
     <header class="calendar-header">
 
       <div>
-        <p class="eyebrow">
-          our time together
-        </p>
-
-        <h1 id="monthLabel">
-          August 2026
-        </h1>
+        <p class="eyebrow">our time together</p>
+        <h1 id="monthLabel">August 2026</h1>
       </div>
-
 
       <div class="month-controls">
 
@@ -211,7 +189,6 @@
 
         </div>
 
-
         <div
           id="calendarDays"
           class="calendar-days"
@@ -221,7 +198,6 @@
 
     </section>
 
-
     <p class="page-note">
       select a date to view the day
     </p>
@@ -229,9 +205,7 @@
   </main>
 
 
-
-  <!-- DAILY SCHEDULE -->
-
+  <!-- DAILY VIEW -->
   <div
     id="dayModal"
     class="modal hidden"
@@ -245,15 +219,11 @@
       <header class="modal-header sticky-header">
 
         <div>
-          <p class="eyebrow">
-            daily schedule
-          </p>
-
+          <p class="eyebrow">daily schedule</p>
           <h2 id="dayTitle">
             Monday, 3 August 2026
           </h2>
         </div>
-
 
         <div class="header-actions">
 
@@ -309,9 +279,7 @@
   </div>
 
 
-
   <!-- EVENT EDITOR -->
-
   <div
     id="eventModal"
     class="modal editor-modal hidden"
@@ -325,6 +293,7 @@
       <header class="modal-header">
 
         <div>
+
           <p
             id="editorLabel"
             class="eyebrow"
@@ -340,8 +309,8 @@
             id="editorMeta"
             class="editor-meta"
           ></p>
-        </div>
 
+        </div>
 
         <button
           id="closeEventModal"
@@ -367,8 +336,7 @@
         />
 
 
-        <!-- PLAN OPTIONS -->
-
+        <!-- SHARED PLAN -->
         <div id="planFields">
 
           <label>
@@ -380,62 +348,122 @@
                 Select a template
               </option>
 
-              <option value="date-night">
-                Date night
-              </option>
 
-              <option value="day-date">
-                Day date
-              </option>
+              <optgroup label="♡ together">
 
-              <option value="reading-night">
-                Reading night
-              </option>
+                <option value="date-night">
+                  Date night
+                </option>
 
-              <option value="game-night">
-                Game night
-              </option>
+                <option value="day-date">
+                  Day date
+                </option>
 
-              <option value="friends-game-night">
-                Game night with friends
-              </option>
+                <option value="monthsary">
+                  Monthsary
+                </option>
 
-              <option value="movie-night">
-                Movie night
-              </option>
+                <option value="anniversary">
+                  Anniversary
+                </option>
 
-              <option value="dinner">
-                Dinner
-              </option>
+              </optgroup>
 
-              <option value="hangout">
-                Hangout
-              </option>
 
-              <option value="eat-somewhere">
-                Eat somewhere
-              </option>
+              <optgroup label="☾ wind down">
 
-              <option value="cafe">
-                Café date
-              </option>
+                <option value="reading-night">
+                  Reading night
+                </option>
 
-              <option value="walk">
-                Walk
-              </option>
+                <option value="cozy-night">
+                  Cozy night
+                </option>
 
-              <option value="custom">
-                Custom event
-              </option>
+                <option value="wind-down">
+                  Wind-down time
+                </option>
+
+                <option value="creative-night">
+                  Creative night
+                </option>
+
+                <option value="quiet-time">
+                  Quiet time
+                </option>
+
+                <option value="self-care-night">
+                  Self-care night
+                </option>
+
+              </optgroup>
+
+
+              <optgroup label="♢ fun">
+
+                <option value="game-night">
+                  Game night
+                </option>
+
+                <option value="friends-game-night">
+                  Game night with friends
+                </option>
+
+                <option value="movie-night">
+                  Movie night
+                </option>
+
+                <option value="eat-out">
+                  Eat out
+                </option>
+
+                <option value="hangout">
+                  Hangout
+                </option>
+
+                <option value="walk">
+                  Walk
+                </option>
+
+                <option value="try-something-new">
+                  Try something new
+                </option>
+
+              </optgroup>
+
+
+              <optgroup label="＋ other">
+
+                <option value="custom">
+                  Custom event
+                </option>
+
+              </optgroup>
 
             </select>
+
+          </label>
+
+
+          <!-- CUSTOM EVENT NAME -->
+          <label
+            id="customTitleField"
+            class="hidden"
+          >
+            Event name
+
+            <input
+              id="customEventTitle"
+              type="text"
+              maxlength="80"
+              placeholder="e.g. pottery class, beach trip, bowling..."
+            />
           </label>
 
         </div>
 
 
-        <!-- OWNER SCHEDULE OPTIONS -->
-
+        <!-- OWNER SCHEDULE -->
         <div
           id="scheduleFields"
           class="hidden"
@@ -455,6 +483,7 @@
               </option>
 
             </select>
+
           </label>
 
         </div>
@@ -464,11 +493,13 @@
           Select date
 
           <span class="date-input-wrapper">
+
             <input
               id="eventDate"
               type="date"
               required
             />
+
           </span>
         </label>
 
@@ -525,7 +556,6 @@
           >
             Delete
           </button>
-
 
           <div class="right-actions">
 
