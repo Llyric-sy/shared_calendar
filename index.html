@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Our Shared Calendar</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <main class="app-shell">
+    <header class="calendar-header">
+      <div>
+        <p class="eyebrow">our time together</p>
+        <h1 id="monthLabel">August 2026</h1>
+      </div>
+
+      <div class="month-controls">
+        <button
+          id="previousMonth"
+          class="icon-button"
+          type="button"
+          aria-label="Previous month"
+        >
+          ←
+        </button>
+
+        <button
+          id="todayButton"
+          class="secondary-button"
+          type="button"
+        >
+          Today
+        </button>
+
+        <button
+          id="nextMonth"
+          class="icon-button"
+          type="button"
+          aria-label="Next month"
+        >
+          →
+        </button>
+      </div>
+    </header>
+
+    <section class="calendar-wrapper">
+      <div class="calendar">
+        <div class="weekdays">
+          <div>Monday</div>
+          <div>Tuesday</div>
+          <div>Wednesday</div>
+          <div>Thursday</div>
+          <div>Friday</div>
+          <div>Saturday</div>
+          <div>Sunday</div>
+        </div>
+
+        <div id="calendarDays" class="calendar-days"></div>
+      </div>
+    </section>
+
+    <p class="page-note">
+      Select a date to open its daily schedule. Dashed lines represent half-hour
+      slots.
+    </p>
+  </main>
+
+  <!-- Daily schedule -->
+  <div
+    id="dayModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="dayTitle"
+  >
+    <div class="modal-panel day-panel">
+      <header class="modal-header sticky-header">
+        <div>
+          <p class="eyebrow">daily schedule</p>
+          <h2 id="dayTitle">Monday, 3 August 2026</h2>
+        </div>
+
+        <div class="header-actions">
+          <button
+            id="addScheduleButton"
+            class="secondary-button"
+            type="button"
+          >
+            Add my schedule
+          </button>
+
+          <button
+            id="closeDayModal"
+            class="icon-button"
+            type="button"
+            aria-label="Close daily schedule"
+          >
+            ×
+          </button>
+        </div>
+      </header>
+
+      <div class="timeline-key">
+        <span>
+          <i class="legend-dot work-dot"></i>
+          Work
+        </span>
+
+        <span>
+          <i class="legend-dot busy-dot"></i>
+          Busy
+        </span>
+
+        <span>
+          <i class="legend-dot plan-dot"></i>
+          Shared plan
+        </span>
+      </div>
+
+      <div
+        id="timeline"
+        class="timeline"
+        aria-label="Twenty-four-hour schedule"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Event editor -->
+  <div
+    id="eventModal"
+    class="modal editor-modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="editorHeading"
+  >
+    <div class="modal-panel editor-panel">
+      <header class="modal-header">
+        <div>
+          <p id="editorLabel" class="eyebrow">create a plan</p>
+          <h2 id="editorHeading">Add an event</h2>
+        </div>
+
+        <button
+          id="closeEventModal"
+          class="icon-button"
+          type="button"
+          aria-label="Close event editor"
+        >
+          ×
+        </button>
+      </header>
+
+      <form id="eventForm" class="event-form">
+        <input id="itemType" type="hidden" value="plan" />
+
+        <div id="planFields">
+          <label>
+            Template
+
+            <select id="templateSelect">
+              <option value="">Select a template</option>
+              <option value="date-night">Date night</option>
+              <option value="day-date">Day date</option>
+              <option value="reading-night">Reading night</option>
+              <option value="game-night">Game night</option>
+              <option value="friends-game-night">
+                Game night with friends
+              </option>
+              <option value="movie-night">Movie night</option>
+              <option value="dinner">Dinner</option>
+              <option value="custom">Custom event</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="scheduleFields" class="hidden">
+          <label>
+            Schedule type
+
+            <select id="scheduleType">
+              <option value="work">Work</option>
+              <option value="busy">Busy / unavailable</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Select date
+
+          <span class="date-input-wrapper">
+            <input id="eventDate" type="date" required />
+          </span>
+        </label>
+
+        <div class="time-fields">
+          <label>
+            Start time
+
+            <select id="startTime" required></select>
+          </label>
+
+          <label>
+            End time
+
+            <select id="endTime" required></select>
+          </label>
+        </div>
+
+        <label>
+          Add notes
+
+          <textarea
+            id="eventNotes"
+            rows="4"
+            maxlength="300"
+            placeholder="Add any details..."
+          ></textarea>
+        </label>
+
+        <p
+          id="formMessage"
+          class="form-message"
+          aria-live="polite"
+        ></p>
+
+        <div class="form-actions">
+          <button
+            id="deleteEvent"
+            class="danger-button hidden"
+            type="button"
+          >
+            Delete
+          </button>
+
+          <div class="right-actions">
+            <button
+              id="cancelEditor"
+              class="secondary-button"
+              type="button"
+            >
+              Cancel
+            </button>
+
+            <button
+              id="saveEventButton"
+              class="primary-button"
+              type="submit"
+            >
+              Add event
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
