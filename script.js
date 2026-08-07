@@ -738,25 +738,25 @@ async function loadAuthenticatedApp(
 
 
   currentUserName.textContent =
-    profile.display_name;
+  profile.display_name;
 
-  currentUserRole.textContent =
-    profile.role;
+currentUserRole.textContent =
+  profile.role === "girlfriend"
+    ? "my love"
+    : profile.role;
 
+addScheduleButton.classList.toggle(
+  "hidden",
+  profile.role !== "owner"
+);
 
-  addScheduleButton.classList.toggle(
-    "hidden",
-    profile.role !== "owner"
-  );
+authView.classList.add(
+  "hidden"
+);
 
-
-  authView.classList.add(
-    "hidden"
-  );
-
-  appView.classList.remove(
-    "hidden"
-  );
+appView.classList.remove(
+  "hidden"
+);
 
 
   await loadItems();
