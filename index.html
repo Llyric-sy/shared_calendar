@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8" />
 
   <meta
@@ -10,21 +12,30 @@
 
   <title>Our Shared Calendar</title>
 
-  <link rel="stylesheet" href="style.css" />
+  <link
+    rel="stylesheet"
+    href="style.css"
+  />
 
   <script
     type="module"
     src="script.js"
   ></script>
+
 </head>
+
 
 <body>
 
-  <!-- =========================
-       LOGIN VIEW
-  ========================== -->
 
-  <main id="authView" class="auth-view">
+  <!-- =====================================
+       LOGIN
+  ====================================== -->
+
+  <main
+    id="authView"
+    class="auth-view"
+  >
 
     <section class="login-card">
 
@@ -51,6 +62,7 @@
       >
 
         <label>
+
           Email
 
           <input
@@ -60,10 +72,12 @@
             placeholder="your email"
             required
           />
+
         </label>
 
 
         <label>
+
           Password
 
           <input
@@ -73,6 +87,7 @@
             placeholder="••••••••"
             required
           />
+
         </label>
 
 
@@ -99,14 +114,15 @@
 
 
 
-  <!-- =========================
+  <!-- =====================================
        MAIN CALENDAR
-  ========================== -->
+  ====================================== -->
 
   <main
     id="appView"
     class="app-shell hidden"
   >
+
 
     <!-- ACCOUNT BAR -->
 
@@ -141,6 +157,7 @@
         >
           ● synced
         </span>
+
 
         <button
           id="logoutButton"
@@ -314,9 +331,9 @@
 
 
 
-  <!-- =========================
-       DAILY CALENDAR MODAL
-  ========================== -->
+  <!-- =====================================
+       DAILY CALENDAR
+  ====================================== -->
 
   <div
     id="dayModal"
@@ -387,14 +404,20 @@
 
         <span>
           <i class="legend-dot plan-dot"></i>
-          Plan
+          Our plan
+        </span>
+
+
+        <span>
+          <i class="legend-dot friend-dot"></i>
+          Friend proposal
         </span>
 
       </div>
 
 
 
-      <!-- 24 HOUR TIMELINE -->
+      <!-- TIMELINE -->
 
       <div
         id="timeline"
@@ -408,9 +431,9 @@
 
 
 
-  <!-- =========================
-       EVENT EDITOR
-  ========================== -->
+  <!-- =====================================
+       CJ / ALECKZ EVENT EDITOR
+  ====================================== -->
 
   <div
     id="eventModal"
@@ -472,13 +495,12 @@
         />
 
 
-        <!-- =========================
-             PLAN FIELDS
-        ========================== -->
+        <!-- PRIVATE PLAN -->
 
         <div id="planFields">
 
           <label>
+
             Template
 
             <select id="templateSelect">
@@ -487,8 +509,6 @@
                 Select a template
               </option>
 
-
-              <!-- TOGETHER -->
 
               <optgroup label="♡ together">
 
@@ -510,8 +530,6 @@
 
               </optgroup>
 
-
-              <!-- WIND DOWN -->
 
               <optgroup label="☾ wind down">
 
@@ -546,8 +564,6 @@
               </optgroup>
 
 
-              <!-- FUN -->
-
               <optgroup label="♢ fun">
 
                 <option value="game-night">
@@ -581,8 +597,6 @@
               </optgroup>
 
 
-              <!-- OTHER -->
-
               <optgroup label="＋ other">
 
                 <option value="custom">
@@ -597,12 +611,11 @@
 
 
 
-          <!-- CUSTOM EVENT NAME -->
-
           <label
             id="customTitleField"
             class="hidden"
           >
+
             Event name
 
             <input
@@ -618,9 +631,7 @@
 
 
 
-        <!-- =========================
-             OWNER SCHEDULE FIELDS
-        ========================== -->
+        <!-- OWNER SCHEDULE -->
 
         <div
           id="scheduleFields"
@@ -628,6 +639,7 @@
         >
 
           <label>
+
             Schedule type
 
             <select id="scheduleType">
@@ -648,9 +660,8 @@
 
 
 
-        <!-- DATE -->
-
         <label>
+
           Select date
 
           <span class="date-input-wrapper">
@@ -667,11 +678,10 @@
 
 
 
-        <!-- TIMES -->
-
         <div class="time-fields">
 
           <label>
+
             Start time
 
             <select
@@ -683,6 +693,7 @@
 
 
           <label>
+
             End time
 
             <select
@@ -696,9 +707,8 @@
 
 
 
-        <!-- NOTES -->
-
         <label>
+
           Add notes
 
           <textarea
@@ -760,5 +770,106 @@
 
   </div>
 
+
+
+  <!-- =====================================
+       FRIEND PROPOSAL DETAILS
+  ====================================== -->
+
+  <div
+    id="friendProposalModal"
+    class="modal proposal-modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="friendProposalTitle"
+  >
+
+    <div class="modal-panel proposal-panel">
+
+      <header class="modal-header">
+
+        <div>
+
+          <p class="eyebrow">
+            friend proposal
+          </p>
+
+          <h2 id="friendProposalTitle">
+            Hangout
+          </h2>
+
+        </div>
+
+
+        <button
+          id="closeFriendProposalModal"
+          class="icon-button"
+          type="button"
+          aria-label="Close friend proposal"
+        >
+          ×
+        </button>
+
+      </header>
+
+
+      <div class="proposal-content">
+
+        <div class="proposal-row">
+
+          <span class="proposal-label">
+            Proposed by
+          </span>
+
+          <strong id="friendProposalCreator">
+            mark
+          </strong>
+
+        </div>
+
+
+        <div class="proposal-row">
+
+          <span class="proposal-label">
+            Date
+          </span>
+
+          <strong id="friendProposalDate">
+          </strong>
+
+        </div>
+
+
+        <div class="proposal-row">
+
+          <span class="proposal-label">
+            Time
+          </span>
+
+          <strong id="friendProposalTime">
+          </strong>
+
+        </div>
+
+
+        <div class="proposal-notes">
+
+          <span class="proposal-label">
+            Notes
+          </span>
+
+          <p id="friendProposalNotes">
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
 </body>
+
 </html>
