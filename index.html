@@ -22,6 +22,24 @@
     src="script.js"
   ></script>
 
+  <style>
+    .all-day-row {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .all-day-row input[type="checkbox"] {
+      width: auto !important;
+      min-width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: currentColor;
+    }
+  </style>
+
 </head>
 
 
@@ -677,6 +695,14 @@
         </label>
 
 
+        <label class="all-day-row">
+          <input
+            id="eventAllDay"
+            type="checkbox"
+          />
+          <span>All day</span>
+        </label>
+
 
         <div class="time-fields">
 
@@ -868,6 +894,118 @@
     </div>
 
   </div>
+
+
+  <script>
+    window.addEventListener("load", () => {
+      const eventForm = document.querySelector("#eventForm");
+      const eventModal = document.querySelector("#eventModal");
+      const allDayInput = document.querySelector("#eventAllDay");
+      const timeFields = document.querySelector("#eventForm .time-fields");
+      const startTime = document.querySelector("#startTime");
+      const endTime = document.querySelector("#endTime");
+      const templateSelect = document.querySelector("#templateSelect");
+
+      if (!eventForm || !eventModal || !allDayInput || !timeFields || !startTime || !endTime) {
+        return;
+      }
+
+      let previousStart = "09:00";
+      let previousEnd = "10:00";
+
+      const isAllDayRange = () =>
+        startTime.value === "00:00" && endTime.value === "24:00";
+
+      const forceAllDayRange = () => {
+        startTime.value = "00:00";
+        endTime.value = "24:00";
+      };
+
+      const syncAllDayFields = ({ opening = false } = {}) => {
+        if (opening) {
+          allDayInput.checked = isAllDayRange();
+        }
+
+        const allDay = allDayInput.checked;
+
+        if (allDay) {
+          if (!isAllDayRange()) {
+            previousStart = startTime.value || "09:00";
+            previousEnd = endTime.value || "10:00";
+          }
+
+          forceAllDayRange();
+        } else if (!opening && isAllDayRange()) {
+          startTime.value = previousStart;
+          endTime.value = previousEnd;
+        }
+
+        timeFields.classList.toggle("hidden", allDay);
+        startTime.required = !allDay;
+        endTime.required = !allDay;
+      };
+
+      allDayInput.addEventListener("change", () => syncAllDayFields());
+
+      templateSelect?.addEventListener("change", () => {
+        if (allDayInput.checked) {
+          setTimeout(forceAllDayRange, 0);
+        }
+      });
+
+      eventForm.addEventListener(
+        "submit",
+        () => {
+          if (allDayInput.checked) {
+            forceAllDayRange();
+          }
+        },
+        true
+      );
+
+      const modalObserver = new MutationObserver(() => {
+        if (!eventModal.classList.contains("hidden")) {
+          setTimeout(() => syncAllDayFields({ opening: true }), 0);
+        }
+      });
+
+      modalObserver.observe(eventModal, {
+        attributes: true,
+        attributeFilter: ["class"]
+      });
+
+      const replaceAllDayLabels = () => {
+        document.querySelectorAll(".summary-entry").forEach(entry => {
+          if (entry.textContent.startsWith("00:00 ")) {
+            entry.textContent = entry.textContent.replace(/^00:00 /, "All day ");
+          }
+        });
+
+        document.querySelectorAll(".event-block span, #friendProposalTime").forEach(element => {
+          if (element.textContent.includes("00:00–24:00")) {
+            element.textContent = element.textContent.replace("00:00–24:00", "All day");
+          }
+        });
+      };
+
+      let labelUpdateQueued = false;
+      const queueLabelUpdate = () => {
+        if (labelUpdateQueued) return;
+        labelUpdateQueued = true;
+        queueMicrotask(() => {
+          labelUpdateQueued = false;
+          replaceAllDayLabels();
+        });
+      };
+
+      new MutationObserver(queueLabelUpdate).observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+
+      replaceAllDayLabels();
+    });
+  </script>
 
 
 </body>
