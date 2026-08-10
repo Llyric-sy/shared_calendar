@@ -397,6 +397,26 @@ body.is-dragging .copy-targets { display: grid; }
   .account-info span { display: none; }
   .account-actions { gap: 6px; }
   .account-actions > .secondary-button { padding: 9px 10px; font-size: .75rem; }
+  .notification-panel {
+    position: fixed;
+    top: 70px;
+    right: 12px;
+    left: auto;
+    width: min(330px, calc(100vw - 24px));
+    max-height: calc(100dvh - 84px);
+    border-radius: 14px;
+  }
+  .notification-panel header { padding: 10px 12px; }
+  .notification-panel header .eyebrow { display: none; }
+  .notification-panel h2 { font-size: .92rem; }
+  .notification-panel .text-button { padding: 4px; font-size: .7rem; }
+  .notifications-list { max-height: min(280px, calc(100dvh - 136px)); }
+  .notification-item { grid-template-columns: 7px minmax(0, 1fr); gap: 7px; padding: 10px 12px; }
+  .notification-state { width: 6px; height: 6px; margin-top: 4px; }
+  .notification-copy { min-width: 0; gap: 2px; }
+  .notification-copy strong { overflow-wrap: anywhere; font-size: .74rem; line-height: 1.3; }
+  .notification-copy span { overflow-wrap: anywhere; font-size: .68rem; line-height: 1.35; }
+  .empty-state { padding: 20px 12px; font-size: .76rem; }
   .page-heading h1 { font-size: 2.25rem; }
   .main-actions { align-items: stretch; flex-direction: column; }
   .calendar { min-width: 100%; }
