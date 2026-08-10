@@ -224,8 +224,14 @@ function attachEventListeners() {
     renderCalendar();
   });
 
-  elements.updateScheduleButton.addEventListener("click", () => openEditor({ type: "schedule" }));
-  elements.invitePartnerButton.addEventListener("click", () => openEditor({ type: "plan" }));
+  elements.updateScheduleButton.addEventListener("click", () => openEditor({
+    type: "schedule",
+    date: defaultEntryDate()
+  }));
+  elements.invitePartnerButton.addEventListener("click", () => openEditor({
+    type: "plan",
+    date: defaultEntryDate()
+  }));
   elements.dayScheduleButton.addEventListener("click", () => openEditor({ type: "schedule", date: state.selectedDate }));
   elements.dayInviteButton.addEventListener("click", () => openEditor({ type: "plan", date: state.selectedDate }));
 
@@ -694,6 +700,13 @@ function matchesCurrentFilter(item) {
 function changeMonth(offset) {
   state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + offset, 1);
   renderCalendar();
+}
+
+function defaultEntryDate() {
+  const today = new Date();
+  const viewingCurrentMonth = state.currentDate.getFullYear() === today.getFullYear()
+    && state.currentDate.getMonth() === today.getMonth();
+  return toISODate(viewingCurrentMonth ? today : state.currentDate);
 }
 
 async function copyDraggedItem(targetDate) {
