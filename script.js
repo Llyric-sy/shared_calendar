@@ -3,6 +3,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL = "https://uyofqzrgyubdsgheuhbl.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_TOj9Iqr3gRFktXxvzYA7kQ_g9-edYzp";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const EMAIL_DELIVERY_FUNCTION = "send-calendar-email";
 
 const templates = {
   "date-night": { title: "Date night", duration: 240 },
@@ -745,11 +746,18 @@ async function copyItemToDate(item, targetDate) {
     last_action_by: state.user.id
   };
 
-  const { error } = await supabase.from("calendar_items").insert(payload);
+  const { data: copiedItem, error } = await supabase
+    .from("calendar_items")
+    .insert(payload)
+    .select("id")
+    .single();
   if (error) {
     setCalendarMessage("The entry could not be copied.", true);
     showToast("The entry could not be copied.");
   } else {
+    if (item.item_type === "plan" && copiedItem?.id) {
+      requestEmailDelivery(copiedItem.id, "invitation");
+    }
     await loadItems();
     showToast(`Copied to ${formatLongDate(targetDate)}.`);
   }
@@ -955,6 +963,7 @@ async function saveItem(event) {
   };
 
   let error;
+  let savedItem = null;
   let savedCount = 1;
   if (existing) {
     ({ error } = await supabase.from("calendar_items").update(payload).eq("id", existing.id));
@@ -968,7 +977,11 @@ async function saveItem(event) {
     savedCount = repeatResult.rows.length;
     ({ error } = await supabase.from("calendar_items").insert(repeatResult.rows));
   } else {
-    ({ error } = await supabase.from("calendar_items").insert({ ...payload, created_by: state.user.id }));
+    ({ data: savedItem, error } = await supabase
+      .from("calendar_items")
+      .insert({ ...payload, created_by: state.user.id })
+      .select("id")
+      .single());
   }
 
   elements.saveEventButton.disabled = false;
@@ -979,6 +992,9 @@ async function saveItem(event) {
 
   closeEditor();
   await loadItems();
+  if (!existing && itemType === "plan" && savedItem?.id) {
+    requestEmailDelivery(savedItem.id, "invitation");
+  }
   showToast(existing ? "Changes saved." : savedCount > 1 ? `${savedCount} schedule entries added.` : itemType === "plan" ? `Invitation sent to ${displayName(state.otherProfile)}.` : "Schedule added.");
 }
 
@@ -1134,6 +1150,7 @@ async function respondToInvitation(item, status, extras = {}) {
     elements.detailMessage.textContent = "Your response could not be saved.";
     return;
   }
+  requestEmailDelivery(item.id, status);
   await loadItems();
   showToast(status === "accepted" ? "Invitation accepted." : status === "declined" ? "Invitation declined." : "Suggested changes sent.");
 }
@@ -1144,6 +1161,7 @@ async function confirmPlan(item) {
     last_action_by: state.user.id
   }).eq("id", item.id);
   if (error) return elements.detailMessage.textContent = "The plan could not be confirmed.";
+  requestEmailDelivery(item.id, "confirmed");
   await loadItems();
   showToast("Plan confirmed.");
 }
@@ -1164,8 +1182,26 @@ async function applySuggestion(item) {
     last_action_by: state.user.id
   }).eq("id", item.id);
   if (error) return elements.detailMessage.textContent = "The suggested changes could not be applied.";
+  requestEmailDelivery(item.id, "invitation");
   await loadItems();
   showToast(`Updated invitation sent back to ${displayName(state.otherProfile)}.`);
+}
+
+async function requestEmailDelivery(calendarItemId, notificationType) {
+  try {
+    const { error } = await supabase.functions.invoke(EMAIL_DELIVERY_FUNCTION, {
+      body: {
+        calendar_item_id: calendarItemId,
+        notification_type: notificationType
+      }
+    });
+
+    // Email delivery is intentionally best-effort. The in-site notification is
+    // already stored by the database and remains the source of truth.
+    if (error) console.info("External email delivery is unavailable; the in-site notification is still active.");
+  } catch {
+    console.info("External email delivery is unavailable; the in-site notification is still active.");
+  }
 }
 
 function closeDetail() {

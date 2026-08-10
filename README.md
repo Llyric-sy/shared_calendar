@@ -22,13 +22,24 @@ A private GitHub Pages calendar for CJ and Aleckz, backed by Supabase.
 
 ## Notifications
 
-In-site notifications are active. Supabase Auth handles password-reset emails. Automatic invitation email or SMS requires a protected server-side provider key and must not be placed in this public GitHub Pages source. The database already contains private notification preferences so email can be connected first and SMS can be added later without redesigning the calendar.
+In-site notifications are active. Supabase Auth handles password-reset emails.
+
+The secure email-delivery path is installed but intentionally disabled. Invitation, response, suggested-change, and confirmation actions can call the protected `send-calendar-email` Supabase Edge Function, which currently exits without sending anything because `EMAIL_NOTIFICATIONS_ENABLED` defaults to `false`. No email-provider key is stored in the public GitHub Pages source.
+
+To activate email later without changing the website code:
+
+1. Verify a sending domain with the chosen provider.
+2. Add `RESEND_API_KEY` and `NOTIFICATION_FROM_EMAIL` as protected Supabase Function secrets.
+3. Set `EMAIL_NOTIFICATIONS_ENABLED=true`.
+4. Set `email_enabled=true` for the recipient's private notification preference.
+
+SMS remains a separate later option because it uses a different paid provider.
 
 ## Next roadmap items
 
 1. Shared free-time suggestions based on both schedules.
 2. Proper location favourites and learned recommendations.
-3. Secure email delivery through a Supabase Edge Function and transactional-email provider.
+3. Activate the prepared email delivery channel when wanted.
 4. Optional SMS delivery through a paid SMS provider.
 5. Google Calendar integration, followed by Microsoft Calendar integration.
 
