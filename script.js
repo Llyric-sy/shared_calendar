@@ -1,4265 +1,1281 @@
-import {
-  createClient
-} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-
-/* ========================================
-   SUPABASE
-======================================== */
-
-const SUPABASE_URL =
-  "https://uyofqzrgyubdsgheuhbl.supabase.co";
-
-
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_TOj9Iqr3gRFktXxvzYA7kQ_g9-edYzp";
-
-
-const supabase =
-  createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
-
-
-
-/* ========================================
-   PRIVATE CALENDAR TEMPLATES
-======================================== */
+const SUPABASE_URL = "https://uyofqzrgyubdsgheuhbl.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_TOj9Iqr3gRFktXxvzYA7kQ_g9-edYzp";
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 const templates = {
-
-  /* TOGETHER */
-
-  "date-night": {
-    title: "Date night",
-    duration: 240
-  },
-
-
-  "day-date": {
-    title: "Day date",
-    duration: 360
-  },
-
-
-  monthsary: {
-    title: "Monthsary",
-    duration: 240
-  },
-
-
-  anniversary: {
-    title: "Anniversary",
-    duration: 360
-  },
-
-
-  /* WIND DOWN */
-
-  "reading-night": {
-    title: "Reading night",
-    duration: 90
-  },
-
-
-  "cozy-night": {
-    title: "Cozy night",
-    duration: 120
-  },
-
-
-  "wind-down": {
-    title: "Wind-down time",
-    duration: 90
-  },
-
-
-  "creative-night": {
-    title: "Creative night",
-    duration: 120
-  },
-
-
-  "quiet-time": {
-    title: "Quiet time",
-    duration: 60
-  },
-
-
-  "self-care-night": {
-    title: "Self-care night",
-    duration: 90
-  },
-
-
-  "comfort-night": {
-    title: "Comfort night",
-    duration: 120
-  },
-
-
-  /* FUN */
-
-  "game-night": {
-    title: "Game night",
-    duration: 180
-  },
-
-
-  "friends-game-night": {
-    title: "Game night with friends",
-    duration: 240
-  },
-
-
-  "movie-night": {
-    title: "Movie night",
-    duration: 180
-  },
-
-
-  "eat-out": {
-    title: "Eat out",
-    duration: 120
-  },
-
-
-  hangout: {
-    title: "Hangout",
-    duration: 180
-  },
-
-
-  walk: {
-    title: "Walk",
-    duration: 90
-  },
-
-
-  "try-something-new": {
-    title: "Try something new",
-    duration: 180
-  },
-
-
-  /* OTHER */
-
-  custom: {
-    title: "",
-    duration: 60
-  }
-
+  "date-night": { title: "Date night", duration: 240 },
+  "day-date": { title: "Day date", duration: 360 },
+  monthsary: { title: "Monthsary", duration: 240 },
+  anniversary: { title: "Anniversary", duration: 360 },
+  "reading-night": { title: "Reading night", duration: 90 },
+  "game-night": { title: "Game night", duration: 180 },
+  "friends-game-night": { title: "Game night with friends", duration: 240 },
+  "movie-night": { title: "Movie night", duration: 180 },
+  "eat-out": { title: "Eat out", duration: 120 },
+  karaoke: { title: "Karaoke", duration: 120 },
+  "ice-skating": { title: "Ice skating", duration: 120 },
+  bouldering: { title: "Bouldering", duration: 120 },
+  bowling: { title: "Bowling", duration: 120 },
+  shopping: { title: "Shopping", duration: 180 },
+  arcade: { title: "Arcade", duration: 120 },
+  "sports-activity": { title: "Sports / activity", duration: 120 },
+  "try-something-new": { title: "Try something new", duration: 180 },
+  custom: { title: "", duration: 60 }
 };
 
-
-
-/* ========================================
-   STATE
-======================================== */
+const scheduleLabels = {
+  work: "Work",
+  uni: "University",
+  appointment: "Appointment",
+  busy: "Busy / unavailable",
+  gym: "Gym",
+  other: "Other"
+};
 
 const state = {
-
-  currentDate:
-    new Date(),
-
-  selectedDate:
-    null,
-
-  editingId:
-    null,
-
-  editorReadOnly:
-    false,
-
-  items:
-    [],
-
-  privateItems:
-    [],
-
-  friendItems:
-    [],
-
-  user:
-    null,
-
-  profile:
-    null,
-
-  members:
-    new Map(),
-
-  friends:
-    new Map(),
-
-  realtimePrivateChannel:
-    null,
-
-  realtimeFriendChannel:
-    null
-
+  currentDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  selectedDate: null,
+  editingId: null,
+  detailId: null,
+  filter: "all",
+  draggedItemId: null,
+  items: [],
+  notifications: [],
+  profiles: new Map(),
+  user: null,
+  profile: null,
+  otherProfile: null,
+  calendarChannel: null,
+  notificationChannel: null,
+  toastTimer: null
 };
 
-
-
-/* ========================================
-   AUTH ELEMENTS
-======================================== */
-
-const authView =
-  document.querySelector(
-    "#authView"
-  );
-
-
-const appView =
-  document.querySelector(
-    "#appView"
-  );
-
-
-const loginForm =
-  document.querySelector(
-    "#loginForm"
-  );
-
-
-const loginEmail =
-  document.querySelector(
-    "#loginEmail"
-  );
-
-
-const loginPassword =
-  document.querySelector(
-    "#loginPassword"
-  );
-
-
-const loginButton =
-  document.querySelector(
-    "#loginButton"
-  );
-
-
-const loginMessage =
-  document.querySelector(
-    "#loginMessage"
-  );
-
-
-const logoutButton =
-  document.querySelector(
-    "#logoutButton"
-  );
-
-
-const currentUserName =
-  document.querySelector(
-    "#currentUserName"
-  );
-
-
-const currentUserRole =
-  document.querySelector(
-    "#currentUserRole"
-  );
-
-
-const syncStatus =
-  document.querySelector(
-    "#syncStatus"
-  );
-
-
-
-/* ========================================
-   MONTH ELEMENTS
-======================================== */
-
-const monthLabel =
-  document.querySelector(
-    "#monthLabel"
-  );
-
-
-const calendarDays =
-  document.querySelector(
-    "#calendarDays"
-  );
-
-
-const previousMonthButton =
-  document.querySelector(
-    "#previousMonth"
-  );
-
-
-const nextMonthButton =
-  document.querySelector(
-    "#nextMonth"
-  );
-
-
-const todayButton =
-  document.querySelector(
-    "#todayButton"
-  );
-
-
-
-/* ========================================
-   DAY ELEMENTS
-======================================== */
-
-const dayModal =
-  document.querySelector(
-    "#dayModal"
-  );
-
-
-const dayTitle =
-  document.querySelector(
-    "#dayTitle"
-  );
-
-
-const timeline =
-  document.querySelector(
-    "#timeline"
-  );
-
-
-const closeDayModalButton =
-  document.querySelector(
-    "#closeDayModal"
-  );
-
-
-const addScheduleButton =
-  document.querySelector(
-    "#addScheduleButton"
-  );
-
-
-
-/* ========================================
-   PRIVATE EVENT EDITOR
-======================================== */
-
-const eventModal =
-  document.querySelector(
-    "#eventModal"
-  );
-
-
-const eventForm =
-  document.querySelector(
-    "#eventForm"
-  );
-
-
-const editorLabel =
-  document.querySelector(
-    "#editorLabel"
-  );
-
-
-const editorHeading =
-  document.querySelector(
-    "#editorHeading"
-  );
-
-
-const editorMeta =
-  document.querySelector(
-    "#editorMeta"
-  );
-
-
-const closeEventModalButton =
-  document.querySelector(
-    "#closeEventModal"
-  );
-
-
-const cancelEditorButton =
-  document.querySelector(
-    "#cancelEditor"
-  );
-
-
-const deleteEventButton =
-  document.querySelector(
-    "#deleteEvent"
-  );
-
-
-const saveEventButton =
-  document.querySelector(
-    "#saveEventButton"
-  );
-
-
-const formMessage =
-  document.querySelector(
-    "#formMessage"
-  );
-
-
-const itemTypeInput =
-  document.querySelector(
-    "#itemType"
-  );
-
-
-const planFields =
-  document.querySelector(
-    "#planFields"
-  );
-
-
-const scheduleFields =
-  document.querySelector(
-    "#scheduleFields"
-  );
-
-
-const templateSelect =
-  document.querySelector(
-    "#templateSelect"
-  );
-
-
-const customTitleField =
-  document.querySelector(
-    "#customTitleField"
-  );
-
-
-const customEventTitle =
-  document.querySelector(
-    "#customEventTitle"
-  );
-
-
-const scheduleTypeSelect =
-  document.querySelector(
-    "#scheduleType"
-  );
-
-
-const eventDateInput =
-  document.querySelector(
-    "#eventDate"
-  );
-
-
-const startTimeSelect =
-  document.querySelector(
-    "#startTime"
-  );
-
-
-const endTimeSelect =
-  document.querySelector(
-    "#endTime"
-  );
-
-
-const notesInput =
-  document.querySelector(
-    "#eventNotes"
-  );
-
-
-
-/* ========================================
-   FRIEND PROPOSAL MODAL
-======================================== */
-
-const friendProposalModal =
-  document.querySelector(
-    "#friendProposalModal"
-  );
-
-
-const friendProposalTitle =
-  document.querySelector(
-    "#friendProposalTitle"
-  );
-
-
-const friendProposalCreator =
-  document.querySelector(
-    "#friendProposalCreator"
-  );
-
-
-const friendProposalDate =
-  document.querySelector(
-    "#friendProposalDate"
-  );
-
-
-const friendProposalTime =
-  document.querySelector(
-    "#friendProposalTime"
-  );
-
-
-const friendProposalNotes =
-  document.querySelector(
-    "#friendProposalNotes"
-  );
-
-
-const closeFriendProposalModal =
-  document.querySelector(
-    "#closeFriendProposalModal"
-  );
-
-
-
-/* ========================================
-   START
-======================================== */
-
-buildTimeOptions();
-
-attachEventListeners();
+const $ = selector => document.querySelector(selector);
+const $$ = selector => [...document.querySelectorAll(selector)];
+
+const elements = {
+  authView: $("#authView"),
+  appView: $("#appView"),
+  loginForm: $("#loginForm"),
+  loginEmail: $("#loginEmail"),
+  loginPassword: $("#loginPassword"),
+  loginButton: $("#loginButton"),
+  loginMessage: $("#loginMessage"),
+  logoutButton: $("#logoutButton"),
+  currentUserName: $("#currentUserName"),
+  currentUserRole: $("#currentUserRole"),
+  avatar: $("#avatar"),
+  syncStatus: $("#syncStatus"),
+  notificationButton: $("#notificationButton"),
+  notificationBadge: $("#notificationBadge"),
+  notificationPanel: $("#notificationPanel"),
+  notificationsList: $("#notificationsList"),
+  markAllReadButton: $("#markAllReadButton"),
+  updateScheduleButton: $("#updateScheduleButton"),
+  invitePartnerButton: $("#invitePartnerButton"),
+  monthLabel: $("#monthLabel"),
+  monthJump: $("#monthJump"),
+  previousMonth: $("#previousMonth"),
+  nextMonth: $("#nextMonth"),
+  todayButton: $("#todayButton"),
+  calendarFilters: $("#calendarFilters"),
+  calendarDays: $("#calendarDays"),
+  calendarMessage: $("#calendarMessage"),
+  copyTargets: $("#copyTargets"),
+  dayModal: $("#dayModal"),
+  dayTitle: $("#dayTitle"),
+  dayScheduleButton: $("#dayScheduleButton"),
+  dayInviteButton: $("#dayInviteButton"),
+  closeDayModal: $("#closeDayModal"),
+  allDayItems: $("#allDayItems"),
+  timeline: $("#timeline"),
+  eventModal: $("#eventModal"),
+  eventForm: $("#eventForm"),
+  editorLabel: $("#editorLabel"),
+  editorHeading: $("#editorHeading"),
+  editorMeta: $("#editorMeta"),
+  closeEventModal: $("#closeEventModal"),
+  cancelEditor: $("#cancelEditor"),
+  itemType: $("#itemType"),
+  scheduleFields: $("#scheduleFields"),
+  planFields: $("#planFields"),
+  scheduleType: $("#scheduleType"),
+  scheduleTitleField: $("#scheduleTitleField"),
+  scheduleTitle: $("#scheduleTitle"),
+  inviteeName: $("#inviteeName"),
+  templateSelect: $("#templateSelect"),
+  customTitleField: $("#customTitleField"),
+  customEventTitle: $("#customEventTitle"),
+  eventDate: $("#eventDate"),
+  eventAllDay: $("#eventAllDay"),
+  timeFields: $("#timeFields"),
+  startTime: $("#startTime"),
+  endTime: $("#endTime"),
+  eventLocation: $("#eventLocation"),
+  repeatSection: $("#repeatSection"),
+  repeatSchedule: $("#repeatSchedule"),
+  repeatOptions: $("#repeatOptions"),
+  repeatEndDate: $("#repeatEndDate"),
+  eventNotes: $("#eventNotes"),
+  formMessage: $("#formMessage"),
+  deleteEvent: $("#deleteEvent"),
+  saveEventButton: $("#saveEventButton"),
+  detailModal: $("#detailModal"),
+  closeDetailModal: $("#closeDetailModal"),
+  detailLabel: $("#detailLabel"),
+  detailTitle: $("#detailTitle"),
+  detailStatus: $("#detailStatus"),
+  detailCreator: $("#detailCreator"),
+  detailDate: $("#detailDate"),
+  detailTime: $("#detailTime"),
+  detailLocationRow: $("#detailLocationRow"),
+  detailLocation: $("#detailLocation"),
+  detailNotesRow: $("#detailNotesRow"),
+  detailNotes: $("#detailNotes"),
+  suggestionSummary: $("#suggestionSummary"),
+  suggestionWhen: $("#suggestionWhen"),
+  suggestionLocation: $("#suggestionLocation"),
+  suggestionNote: $("#suggestionNote"),
+  suggestionForm: $("#suggestionForm"),
+  suggestedDate: $("#suggestedDate"),
+  suggestedStartTime: $("#suggestedStartTime"),
+  suggestedEndTime: $("#suggestedEndTime"),
+  suggestedLocationInput: $("#suggestedLocationInput"),
+  responseNote: $("#responseNote"),
+  cancelSuggestionButton: $("#cancelSuggestionButton"),
+  detailMessage: $("#detailMessage"),
+  detailActions: $("#detailActions"),
+  toast: $("#toast")
+};
 
 boot();
 
-
-
-/* ========================================
-   BOOT
-======================================== */
-
 async function boot() {
+  buildTimeOptions();
+  attachEventListeners();
 
-  setSyncStatus(
-    "connecting...",
-    true
-  );
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) await loadAuthenticatedApp(session);
+  else showLogin();
 
-
-  const {
-    data: {
-      session
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_IN" && session && state.user?.id !== session.user.id) {
+      setTimeout(() => loadAuthenticatedApp(session), 0);
     }
-  } =
-    await supabase.auth
-      .getSession();
-
-
-  if (
-    session
-  ) {
-
-    await loadAuthenticatedApp(
-      session
-    );
-
-  } else {
-
-    showLogin();
-
-  }
-
-
-  supabase.auth
-    .onAuthStateChange(
-      (
-        event,
-        session
-      ) => {
-
-        if (
-          event ===
-            "SIGNED_IN" &&
-          session
-        ) {
-
-          setTimeout(
-            () => {
-
-              if (
-                state.user?.id !==
-                session.user.id
-              ) {
-
-                loadAuthenticatedApp(
-                  session
-                );
-
-              }
-
-            },
-            0
-          );
-
-        }
-
-
-        if (
-          event ===
-          "SIGNED_OUT"
-        ) {
-
-          setTimeout(
-            () => {
-
-              clearAuthenticatedApp();
-
-            },
-            0
-          );
-
-        }
-
-      }
-    );
-
+    if (event === "SIGNED_OUT") setTimeout(clearAuthenticatedApp, 0);
+  });
 }
-
-
-
-/* ========================================
-   EVENT LISTENERS
-======================================== */
 
 function attachEventListeners() {
-
-  loginForm.addEventListener(
-    "submit",
-    login
-  );
-
-
-  logoutButton.addEventListener(
-    "click",
-    logout
-  );
-
-
-  previousMonthButton
-    .addEventListener(
-      "click",
-      () => {
-
-        state.currentDate =
-          new Date(
-
-            state.currentDate
-              .getFullYear(),
-
-            state.currentDate
-              .getMonth() - 1,
-
-            1
-
-          );
-
-
-        renderCalendar();
-
-      }
-    );
-
-
-  nextMonthButton
-    .addEventListener(
-      "click",
-      () => {
-
-        state.currentDate =
-          new Date(
-
-            state.currentDate
-              .getFullYear(),
-
-            state.currentDate
-              .getMonth() + 1,
-
-            1
-
-          );
-
-
-        renderCalendar();
-
-      }
-    );
-
-
-  todayButton.addEventListener(
-    "click",
-    () => {
-
-      state.currentDate =
-        new Date();
-
-
-      renderCalendar();
-
-    }
-  );
-
-
-  closeDayModalButton
-    .addEventListener(
-      "click",
-      closeDayView
-    );
-
-
-  addScheduleButton
-    .addEventListener(
-      "click",
-      () => {
-
-        openEditor({
-
-          type:
-            "schedule",
-
-          start:
-            "09:00",
-
-          end:
-            "17:00"
-
-        });
-
-      }
-    );
-
-
-  closeEventModalButton
-    .addEventListener(
-      "click",
-      closeEditor
-    );
-
-
-  cancelEditorButton
-    .addEventListener(
-      "click",
-      closeEditor
-    );
-
-
-  deleteEventButton
-    .addEventListener(
-      "click",
-      deleteCurrentItem
-    );
-
-
-  closeFriendProposalModal
-    .addEventListener(
-      "click",
-      closeFriendProposal
-    );
-
-
-  templateSelect
-    .addEventListener(
-      "change",
-      () => {
-
-        updateCustomTitleField();
-
-        applyTemplateDuration();
-
-      }
-    );
-
-
-  startTimeSelect
-    .addEventListener(
-      "change",
-      () => {
-
-        if (
-          itemTypeInput.value ===
-            "plan" &&
-          templateSelect.value
-        ) {
-
-          applyTemplateDuration();
-
-        }
-
-      }
-    );
-
-
-  eventForm.addEventListener(
-    "submit",
-    saveItem
-  );
-
-
-  dayModal.addEventListener(
-    "click",
-    event => {
-
-      if (
-        event.target ===
-        dayModal
-      ) {
-
-        closeDayView();
-
-      }
-
-    }
-  );
-
-
-  eventModal.addEventListener(
-    "click",
-    event => {
-
-      if (
-        event.target ===
-        eventModal
-      ) {
-
-        closeEditor();
-
-      }
-
-    }
-  );
-
-
-  friendProposalModal
-    .addEventListener(
-      "click",
-      event => {
-
-        if (
-          event.target ===
-          friendProposalModal
-        ) {
-
-          closeFriendProposal();
-
-        }
-
-      }
-    );
-
-
-  document.addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        event.key !==
-        "Escape"
-      ) {
-
-        return;
-
-      }
-
-
-      if (
-        !friendProposalModal
-          .classList
-          .contains(
-            "hidden"
-          )
-      ) {
-
-        closeFriendProposal();
-
-        return;
-
-      }
-
-
-      if (
-        !eventModal
-          .classList
-          .contains(
-            "hidden"
-          )
-      ) {
-
-        closeEditor();
-
-        return;
-
-      }
-
-
-      if (
-        !dayModal
-          .classList
-          .contains(
-            "hidden"
-          )
-      ) {
-
-        closeDayView();
-
-      }
-
-    }
-  );
-
+  elements.loginForm.addEventListener("submit", login);
+  elements.logoutButton.addEventListener("click", logout);
+  elements.previousMonth.addEventListener("click", () => changeMonth(-1));
+  elements.nextMonth.addEventListener("click", () => changeMonth(1));
+  elements.todayButton.addEventListener("click", () => {
+    const today = new Date();
+    state.currentDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    renderCalendar();
+  });
+  elements.monthJump.addEventListener("change", () => {
+    if (!elements.monthJump.value) return;
+    const [year, month] = elements.monthJump.value.split("-").map(Number);
+    state.currentDate = new Date(year, month - 1, 1);
+    renderCalendar();
+  });
+
+  elements.calendarFilters.addEventListener("click", event => {
+    const button = event.target.closest("[data-filter]");
+    if (!button) return;
+    state.filter = button.dataset.filter;
+    $$(".filter-button").forEach(item => item.classList.toggle("active", item === button));
+    renderCalendar();
+  });
+
+  elements.updateScheduleButton.addEventListener("click", () => openEditor({ type: "schedule" }));
+  elements.invitePartnerButton.addEventListener("click", () => openEditor({ type: "plan" }));
+  elements.dayScheduleButton.addEventListener("click", () => openEditor({ type: "schedule", date: state.selectedDate }));
+  elements.dayInviteButton.addEventListener("click", () => openEditor({ type: "plan", date: state.selectedDate }));
+
+  elements.closeDayModal.addEventListener("click", closeDayView);
+  elements.closeEventModal.addEventListener("click", closeEditor);
+  elements.cancelEditor.addEventListener("click", closeEditor);
+  elements.closeDetailModal.addEventListener("click", closeDetail);
+  elements.eventForm.addEventListener("submit", saveItem);
+  elements.deleteEvent.addEventListener("click", deleteCurrentItem);
+  elements.scheduleType.addEventListener("change", updateScheduleTitleField);
+  elements.templateSelect.addEventListener("change", () => {
+    updateCustomTitleField();
+    applyTemplateDuration();
+  });
+  elements.startTime.addEventListener("change", () => {
+    if (elements.itemType.value === "plan") applyTemplateDuration();
+  });
+  elements.eventAllDay.addEventListener("change", syncAllDayFields);
+  elements.repeatSchedule.addEventListener("change", () => {
+    elements.repeatOptions.classList.toggle("hidden", !elements.repeatSchedule.checked);
+    if (elements.repeatSchedule.checked) setDefaultRepeatDay();
+  });
+
+  elements.notificationButton.addEventListener("click", event => {
+    event.stopPropagation();
+    const opening = elements.notificationPanel.classList.contains("hidden");
+    elements.notificationPanel.classList.toggle("hidden", !opening);
+    elements.notificationButton.setAttribute("aria-expanded", String(opening));
+  });
+  elements.notificationPanel.addEventListener("click", event => event.stopPropagation());
+  elements.markAllReadButton.addEventListener("click", markAllNotificationsRead);
+  elements.suggestionForm.addEventListener("submit", submitSuggestion);
+  elements.cancelSuggestionButton.addEventListener("click", () => {
+    elements.suggestionForm.classList.add("hidden");
+    renderDetailActions(getDetailItem());
+  });
+
+  $$("[data-copy-direction]").forEach(target => {
+    target.addEventListener("dragover", event => {
+      if (!state.draggedItemId) return;
+      event.preventDefault();
+      target.classList.add("drag-over");
+    });
+    target.addEventListener("dragleave", () => target.classList.remove("drag-over"));
+    target.addEventListener("drop", event => {
+      event.preventDefault();
+      target.classList.remove("drag-over");
+      copyItemToAdjacentMonth(target.dataset.copyDirection === "previous" ? -1 : 1);
+    });
+  });
+
+  [elements.dayModal, elements.eventModal, elements.detailModal].forEach(modal => {
+    modal.addEventListener("click", event => {
+      if (event.target !== modal) return;
+      if (modal === elements.dayModal) closeDayView();
+      if (modal === elements.eventModal) closeEditor();
+      if (modal === elements.detailModal) closeDetail();
+    });
+  });
+
+  document.addEventListener("click", () => {
+    elements.notificationPanel.classList.add("hidden");
+    elements.notificationButton.setAttribute("aria-expanded", "false");
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") return;
+    if (!elements.eventModal.classList.contains("hidden")) closeEditor();
+    else if (!elements.detailModal.classList.contains("hidden")) closeDetail();
+    else if (!elements.dayModal.classList.contains("hidden")) closeDayView();
+  });
 }
 
-
-
-/* ========================================
-   LOGIN
-======================================== */
-
-async function login(
-  event
-) {
-
+async function login(event) {
   event.preventDefault();
+  elements.loginMessage.textContent = "";
+  elements.loginButton.disabled = true;
+  elements.loginButton.textContent = "Signing in...";
 
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: elements.loginEmail.value.trim(),
+    password: elements.loginPassword.value
+  });
 
-  loginMessage.textContent =
-    "";
-
-
-  loginButton.disabled =
-    true;
-
-
-  loginButton.textContent =
-    "Signing in...";
-
-
-  const email =
-    loginEmail
-      .value
-      .trim();
-
-
-  const password =
-    loginPassword.value;
-
-
-  const {
-    data,
-    error
-  } =
-    await supabase.auth
-      .signInWithPassword({
-
-        email,
-
-        password
-
-      });
-
-
-  if (
-    error
-  ) {
-
-    loginMessage.textContent =
-      "Incorrect email or password.";
-
-
-    loginButton.disabled =
-      false;
-
-
-    loginButton.textContent =
-      "Sign in";
-
-
-    return;
-
+  if (error) {
+    elements.loginMessage.textContent = "Incorrect email or password.";
+  } else {
+    elements.loginPassword.value = "";
+    await loadAuthenticatedApp(data.session);
   }
 
-
-  loginPassword.value =
-    "";
-
-
-  await loadAuthenticatedApp(
-    data.session
-  );
-
-
-  loginButton.disabled =
-    false;
-
-
-  loginButton.textContent =
-    "Sign in";
-
+  elements.loginButton.disabled = false;
+  elements.loginButton.textContent = "Sign in";
 }
-
-
-
-/* ========================================
-   LOGOUT
-======================================== */
 
 async function logout() {
-
-  await supabase.auth
-    .signOut();
-
-
+  await supabase.auth.signOut();
   clearAuthenticatedApp();
-
 }
 
+async function loadAuthenticatedApp(session) {
+  if (!session?.user) return showLogin();
+  setSyncStatus("connecting", true);
+  state.user = session.user;
 
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("id, display_name, role, active")
+    .eq("id", session.user.id)
+    .single();
 
-/* ========================================
-   LOAD APP
-======================================== */
+  if (error || !profile?.active) {
+    await supabase.auth.signOut();
+    elements.loginMessage.textContent = "This account does not have access to the private calendar.";
+    return showLogin();
+  }
 
-async function loadAuthenticatedApp(
-  session
-) {
+  state.profile = profile;
+  const { data: profiles, error: profilesError } = await supabase
+    .from("profiles")
+    .select("id, display_name, role, active")
+    .eq("active", true)
+    .order("created_at");
 
-  if (
-    !session?.user
-  ) {
-
-    showLogin();
-
+  if (profilesError) {
+    showToast("Could not load the calendar members.");
     return;
-
   }
 
-
-  setSyncStatus(
-    "connecting...",
-    true
-  );
-
-
-  state.user =
-    session.user;
-
-
-
-  /* CURRENT PROFILE */
-
-  const {
-    data: profile,
-    error: profileError
-  } =
-    await supabase
-      .from(
-        "profiles"
-      )
-      .select(
-        "id, display_name, role, active"
-      )
-      .eq(
-        "id",
-        session.user.id
-      )
-      .single();
-
-
-  if (
-    profileError ||
-    !profile ||
-    !profile.active
-  ) {
-
-    loginMessage.textContent =
-      "This account does not have access to the calendar.";
-
-
-    await supabase.auth
-      .signOut();
-
-
-    showLogin();
-
-
-    return;
-
-  }
-
-
-  state.profile =
-    profile;
-
-
-
-  /* PRIVATE MEMBERS */
-
-  const {
-    data: memberRows
-  } =
-    await supabase
-      .from(
-        "profiles"
-      )
-      .select(
-        "id, display_name, role"
-      );
-
-
-  state.members =
-    new Map();
-
-
-  for (
-    const member
-    of memberRows || []
-  ) {
-
-    state.members.set(
-      member.id,
-      member
-    );
-
-  }
-
-
-
-  /* FRIEND NAMES */
-
-  await loadFriendNames();
-
-
-
-  /* PROFILE DISPLAY */
-
-  currentUserName.textContent =
-    profile.display_name;
-
-
-  currentUserRole.textContent =
-    profile.role ===
-      "girlfriend"
-      ? "my love"
-      : profile.role;
-
-
-
-  /* OWNER-ONLY SCHEDULE */
-
-  addScheduleButton
-    .classList
-    .toggle(
-      "hidden",
-      profile.role !==
-        "owner"
-    );
-
-
-
-  authView.classList.add(
-    "hidden"
-  );
-
-
-  appView.classList.remove(
-    "hidden"
-  );
-
-
-
-  /* LOAD BOTH CALENDARS */
-
-  await loadAllItems();
-
-
-
-  /* OLD LOCAL DATA */
-
-  await migrateOldLocalItems();
-
-
-  await loadAllItems();
-
-
-
-  /* LIVE SYNC */
-
-  subscribeToRealtime();
-
-
-
-  renderCalendar();
-
-
-  setSyncStatus(
-    "● synced",
-    false
-  );
-
+  state.profiles = new Map(profiles.map(item => [item.id, item]));
+  state.otherProfile = profiles.find(item => item.id !== profile.id) || null;
+  updateAccountUI();
+  showApp();
+  await Promise.all([loadItems(), loadNotifications()]);
+  setupRealtime();
+  setSyncStatus("synced");
 }
 
-
-
-/* ========================================
-   LOAD FRIEND NAMES
-======================================== */
-
-async function loadFriendNames() {
-
-  const {
-    data,
-    error
-  } =
-    await supabase
-      .from(
-        "friends"
-      )
-      .select(
-        "id, display_name, active"
-      );
-
-
-  if (
-    error
-  ) {
-
-    console.error(
-      "Could not load friends:",
-      error
-    );
-
-
-    return;
-
-  }
-
-
-  state.friends =
-    new Map();
-
-
-  for (
-    const friend
-    of data || []
-  ) {
-
-    state.friends.set(
-      friend.id,
-      friend
-    );
-
-  }
-
+function updateAccountUI() {
+  const name = displayName(state.profile);
+  const other = displayName(state.otherProfile);
+  elements.currentUserName.textContent = name;
+  elements.currentUserRole.textContent = state.profile.role === "owner" ? "CJ's calendar" : "my love";
+  elements.avatar.textContent = name.slice(0, 1).toUpperCase();
+  elements.avatar.classList.toggle("aleckz-avatar", state.profile.role !== "owner");
+  elements.invitePartnerButton.textContent = `Invite ${other}`;
+  elements.dayInviteButton.textContent = `Invite ${other}`;
+  elements.inviteeName.textContent = other;
 }
 
-
-
-/* ========================================
-   CLEAR APP
-======================================== */
-
-function clearAuthenticatedApp() {
-
-  if (
-    state.realtimePrivateChannel
-  ) {
-
-    supabase.removeChannel(
-      state.realtimePrivateChannel
-    );
-
-  }
-
-
-  if (
-    state.realtimeFriendChannel
-  ) {
-
-    supabase.removeChannel(
-      state.realtimeFriendChannel
-    );
-
-  }
-
-
-  state.realtimePrivateChannel =
-    null;
-
-
-  state.realtimeFriendChannel =
-    null;
-
-
-  state.user =
-    null;
-
-
-  state.profile =
-    null;
-
-
-  state.items =
-    [];
-
-
-  state.privateItems =
-    [];
-
-
-  state.friendItems =
-    [];
-
-
-  state.members =
-    new Map();
-
-
-  state.friends =
-    new Map();
-
-
-  closeFriendProposal();
-
-  closeEditor();
-
-  closeDayView();
-
-  showLogin();
-
+function showApp() {
+  elements.authView.classList.add("hidden");
+  elements.appView.classList.remove("hidden");
 }
-
-
-
-/* ========================================
-   SHOW LOGIN
-======================================== */
 
 function showLogin() {
-
-  appView.classList.add(
-    "hidden"
-  );
-
-
-  authView.classList.remove(
-    "hidden"
-  );
-
+  elements.authView.classList.remove("hidden");
+  elements.appView.classList.add("hidden");
 }
 
+function clearAuthenticatedApp() {
+  removeRealtime();
+  state.user = null;
+  state.profile = null;
+  state.otherProfile = null;
+  state.items = [];
+  state.notifications = [];
+  closeAllModals();
+  showLogin();
+}
 
+async function loadItems() {
+  setSyncStatus("syncing", true);
+  const { data, error } = await supabase
+    .from("calendar_items")
+    .select("id, item_type, title, template, event_date, start_time, end_time, notes, category, created_by, created_at, updated_at, location, status, invited_user_id, all_day, recurrence_group_id, response_note, suggested_date, suggested_start_time, suggested_end_time, suggested_location, responded_at, last_action_by")
+    .order("event_date")
+    .order("start_time");
 
-/* ========================================
-   LOAD ALL CALENDAR ITEMS
-======================================== */
-
-async function loadAllItems() {
-
-  if (
-    !state.user
-  ) {
-
-    return;
-
+  if (error) {
+    setCalendarMessage("Could not load the calendar.", true);
+  } else {
+    state.items = data || [];
+    renderCalendar();
+    if (state.selectedDate && !elements.dayModal.classList.contains("hidden")) renderDayView();
+    if (state.detailId && !elements.detailModal.classList.contains("hidden")) openDetail(state.detailId);
+    setCalendarMessage("");
   }
-
-
-  setSyncStatus(
-    "syncing...",
-    true
-  );
-
-
-  await Promise.all([
-
-    loadPrivateItems(),
-
-    loadFriendItems()
-
-  ]);
-
-
-  state.items =
-    [
-      ...state.privateItems,
-      ...state.friendItems
-    ];
-
-
-  setSyncStatus(
-    "● synced",
-    false
-  );
-
+  setSyncStatus("synced");
 }
 
-
-
-/* ========================================
-   LOAD CJ / ALECKZ ITEMS
-======================================== */
-
-async function loadPrivateItems() {
-
-  const {
-    data,
-    error
-  } =
-    await supabase
-      .from(
-        "calendar_items"
-      )
-      .select("*")
-      .order(
-        "event_date",
-        {
-          ascending:
-            true
-        }
-      )
-      .order(
-        "start_time",
-        {
-          ascending:
-            true
-        }
-      );
-
-
-  if (
-    error
-  ) {
-
-    console.error(
-      "Could not load private calendar:",
-      error
-    );
-
-
-    setSyncStatus(
-      "sync error",
-      true
-    );
-
-
-    return;
-
+async function loadNotifications() {
+  if (!state.user) return;
+  const { data, error } = await supabase
+    .from("calendar_notifications")
+    .select("id, recipient_id, actor_id, calendar_item_id, notification_type, title, body, is_read, read_at, created_at")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (!error) {
+    state.notifications = data || [];
+    renderNotifications();
   }
-
-
-  state.privateItems =
-    (data || [])
-      .map(
-        mapPrivateItem
-      );
-
 }
 
+function setupRealtime() {
+  removeRealtime();
+  state.calendarChannel = supabase
+    .channel("shared-calendar-live")
+    .on("postgres_changes", { event: "*", schema: "public", table: "calendar_items" }, () => loadItems())
+    .subscribe();
 
-
-/* ========================================
-   LOAD FRIEND PROPOSALS
-======================================== */
-
-async function loadFriendItems() {
-
-  const {
-    data,
-    error
-  } =
-    await supabase
-      .from(
-        "friend_events"
-      )
-      .select("*")
-      .order(
-        "event_date",
-        {
-          ascending:
-            true
-        }
-      )
-      .order(
-        "start_time",
-        {
-          ascending:
-            true
-        }
-      );
-
-
-  if (
-    error
-  ) {
-
-    console.error(
-      "Could not load friend proposals:",
-      error
-    );
-
-
-    setSyncStatus(
-      "sync error",
-      true
-    );
-
-
-    return;
-
-  }
-
-
-  state.friendItems =
-    (data || [])
-      .map(
-        mapFriendItem
-      );
-
+  state.notificationChannel = supabase
+    .channel(`calendar-notifications-${state.user.id}`)
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "calendar_notifications",
+      filter: `recipient_id=eq.${state.user.id}`
+    }, () => loadNotifications())
+    .subscribe();
 }
 
-
-
-/* ========================================
-   MAP PRIVATE ITEM
-======================================== */
-
-function mapPrivateItem(
-  item
-) {
-
-  return {
-
-    id:
-      item.id,
-
-    source:
-      "private",
-
-    type:
-      item.item_type,
-
-    title:
-      item.title,
-
-    template:
-      item.template,
-
-    date:
-      item.event_date,
-
-    start:
-      normaliseDatabaseTime(
-        item.start_time
-      ),
-
-    end:
-      normaliseDatabaseTime(
-        item.end_time
-      ),
-
-    notes:
-      item.notes || "",
-
-    category:
-      item.category,
-
-    createdBy:
-      item.created_by,
-
-    createdByName:
-      getMemberName(
-        item.created_by
-      )
-
-  };
-
+function removeRealtime() {
+  if (state.calendarChannel) supabase.removeChannel(state.calendarChannel);
+  if (state.notificationChannel) supabase.removeChannel(state.notificationChannel);
+  state.calendarChannel = null;
+  state.notificationChannel = null;
 }
-
-
-
-/* ========================================
-   MAP FRIEND ITEM
-======================================== */
-
-function mapFriendItem(
-  item
-) {
-
-  return {
-
-    id:
-      item.id,
-
-    source:
-      "friend",
-
-    type:
-      "plan",
-
-    title:
-      item.title,
-
-    template:
-      item.template,
-
-    date:
-      item.event_date,
-
-    start:
-      normaliseDatabaseTime(
-        item.start_time
-      ),
-
-    end:
-      normaliseDatabaseTime(
-        item.end_time
-      ),
-
-    notes:
-      item.notes || "",
-
-    category:
-      "friend-plan",
-
-    friendId:
-      item.friend_id,
-
-    createdByName:
-      getFriendName(
-        item.friend_id
-      )
-
-  };
-
-}
-
-
-
-/* ========================================
-   REALTIME
-======================================== */
-
-function subscribeToRealtime() {
-
-  if (
-    state.realtimePrivateChannel
-  ) {
-
-    supabase.removeChannel(
-      state.realtimePrivateChannel
-    );
-
-  }
-
-
-  if (
-    state.realtimeFriendChannel
-  ) {
-
-    supabase.removeChannel(
-      state.realtimeFriendChannel
-    );
-
-  }
-
-
-
-  /* PRIVATE CALENDAR CHANGES */
-
-  state.realtimePrivateChannel =
-    supabase
-      .channel(
-        "private-calendar-live"
-      )
-      .on(
-
-        "postgres_changes",
-
-        {
-
-          event:
-            "*",
-
-          schema:
-            "public",
-
-          table:
-            "calendar_items"
-
-        },
-
-        async () => {
-
-          await refreshAndRender();
-
-        }
-
-      )
-      .subscribe();
-
-
-
-  /* FRIEND PROPOSAL CHANGES */
-
-  state.realtimeFriendChannel =
-    supabase
-      .channel(
-        "friend-proposals-live"
-      )
-      .on(
-
-        "postgres_changes",
-
-        {
-
-          event:
-            "*",
-
-          schema:
-            "public",
-
-          table:
-            "friend_events"
-
-        },
-
-        async () => {
-
-          await refreshAndRender();
-
-        }
-
-      )
-      .subscribe();
-
-}
-
-
-
-/* ========================================
-   REFRESH AND RENDER
-======================================== */
-
-async function refreshAndRender() {
-
-  await loadAllItems();
-
-
-  renderCalendar();
-
-
-  if (
-    !dayModal
-      .classList
-      .contains(
-        "hidden"
-      )
-  ) {
-
-    renderTimeline();
-
-  }
-
-}
-
-
-
-/* ========================================
-   MONTH CALENDAR
-======================================== */
 
 function renderCalendar() {
+  if (!state.profile) return;
+  const year = state.currentDate.getFullYear();
+  const month = state.currentDate.getMonth();
+  elements.monthLabel.textContent = state.currentDate.toLocaleDateString("en-AU", { month: "long", year: "numeric" });
+  elements.monthJump.value = `${year}-${String(month + 1).padStart(2, "0")}`;
+  elements.calendarDays.replaceChildren();
 
-  const year =
-    state.currentDate
-      .getFullYear();
+  const first = new Date(year, month, 1);
+  const mondayOffset = (first.getDay() + 6) % 7;
+  const gridStart = new Date(year, month, 1 - mondayOffset);
 
+  for (let index = 0; index < 42; index += 1) {
+    const date = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + index);
+    const isoDate = toISODate(date);
+    const cell = document.createElement("div");
+    cell.className = "day-cell";
+    cell.dataset.date = isoDate;
+    cell.tabIndex = 0;
+    cell.setAttribute("role", "button");
+    cell.setAttribute("aria-label", date.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long" }));
+    if (date.getMonth() !== month) cell.classList.add("outside-month");
+    if (isoDate === toISODate(new Date())) cell.classList.add("today");
 
-  const month =
-    state.currentDate
-      .getMonth();
+    const number = document.createElement("span");
+    number.className = "day-number";
+    number.textContent = String(date.getDate());
+    cell.append(number);
 
+    const eventList = document.createElement("div");
+    eventList.className = "day-events";
+    const items = itemsForDate(isoDate).filter(matchesCurrentFilter);
+    items.slice(0, 4).forEach(item => eventList.append(createEventChip(item)));
+    if (items.length > 4) {
+      const more = document.createElement("span");
+      more.className = "event-more";
+      more.textContent = `+${items.length - 4} more`;
+      eventList.append(more);
+    }
+    cell.append(eventList);
 
-  monthLabel.textContent =
-    new Intl.DateTimeFormat(
-      "en-AU",
-      {
-
-        month:
-          "long",
-
-        year:
-          "numeric"
-
+    cell.addEventListener("click", event => {
+      if (event.target.closest(".event-chip")) return;
+      openDayView(isoDate);
+    });
+    cell.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openDayView(isoDate);
       }
-    )
-      .format(
-        new Date(
-          year,
-          month,
-          1
-        )
-      );
-
-
-  calendarDays.innerHTML =
-    "";
-
-
-  const firstWeekday =
-    new Date(
-      year,
-      month,
-      1
-    )
-      .getDay();
-
-
-  const mondayFirstOffset =
-    (
-      firstWeekday +
-      6
-    ) % 7;
-
-
-  const daysInMonth =
-    new Date(
-      year,
-      month + 1,
-      0
-    )
-      .getDate();
-
-
-  const totalCells =
-    Math.max(
-
-      35,
-
-      Math.ceil(
-        (
-          mondayFirstOffset +
-          daysInMonth
-        ) / 7
-      ) * 7
-
-    );
-
-
-  const todayKey =
-    toDateKey(
-      new Date()
-    );
-
-
-  for (
-    let index = 0;
-    index < totalCells;
-    index += 1
-  ) {
-
-    const dayNumber =
-      index -
-      mondayFirstOffset +
-      1;
-
-
-    if (
-      dayNumber < 1 ||
-      dayNumber > daysInMonth
-    ) {
-
-      const blank =
-        document.createElement(
-          "div"
-        );
-
-
-      blank.className =
-        "day-cell blank-day";
-
-
-      calendarDays.append(
-        blank
-      );
-
-
-      continue;
-
-    }
-
-
-    const dateKey =
-      makeDateKey(
-        year,
-        month,
-        dayNumber
-      );
-
-
-    const button =
-      document.createElement(
-        "button"
-      );
-
-
-    button.type =
-      "button";
-
-
-    button.className =
-      "day-cell";
-
-
-    if (
-      dateKey ===
-      todayKey
-    ) {
-
-      button.classList.add(
-        "today"
-      );
-
-    }
-
-
-    button.setAttribute(
-      "aria-label",
-      formatDateLong(
-        dateKey
-      )
-    );
-
-
-    const number =
-      document.createElement(
-        "span"
-      );
-
-
-    number.className =
-      "day-number";
-
-
-    number.textContent =
-      String(
-        dayNumber
-      );
-
-
-    button.append(
-      number
-    );
-
-
-    const summary =
-      document.createElement(
-        "span"
-      );
-
-
-    summary.className =
-      "day-summary";
-
-
-    const items =
-      getItemsForDate(
-        dateKey
-      );
-
-
-    const visible =
-      items.slice(
-        0,
-        3
-      );
-
-
-    for (
-      const item
-      of visible
-    ) {
-
-      const entry =
-        document.createElement(
-          "span"
-        );
-
-
-      entry.className =
-        `summary-entry ${getSummaryClass(item)}`;
-
-
-      entry.textContent =
-        `${item.start} ${item.title}`;
-
-
-      summary.append(
-        entry
-      );
-
-    }
-
-
-    const remaining =
-      items.length -
-      visible.length;
-
-
-    if (
-      remaining > 0
-    ) {
-
-      const more =
-        document.createElement(
-          "span"
-        );
-
-
-      more.className =
-        "more-entry";
-
-
-      more.textContent =
-        `+${remaining} more`;
-
-
-      summary.append(
-        more
-      );
-
-    }
-
-
-    button.append(
-      summary
-    );
-
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        openDayView(
-          dateKey
-        );
-
-      }
-    );
-
-
-    calendarDays.append(
-      button
-    );
-
-  }
-
-}
-
-
-
-/* ========================================
-   SUMMARY CLASS
-======================================== */
-
-function getSummaryClass(
-  item
-) {
-
-  if (
-    item.source ===
-      "friend"
-  ) {
-
-    return "friend-plan";
-
-  }
-
-
-  return (
-    `${item.type} ${item.category}`
-  );
-
-}
-
-
-
-/* ========================================
-   OPEN DAY
-======================================== */
-
-function openDayView(
-  dateKey
-) {
-
-  state.selectedDate =
-    dateKey;
-
-
-  dayTitle.textContent =
-    formatDateLong(
-      dateKey
-    );
-
-
-  renderTimeline();
-
-
-  dayModal.classList.remove(
-    "hidden"
-  );
-
-
-  document.body.classList.add(
-    "modal-open"
-  );
-
-}
-
-
-
-/* ========================================
-   CLOSE DAY
-======================================== */
-
-function closeDayView() {
-
-  dayModal.classList.add(
-    "hidden"
-  );
-
-
-  updateBodyModalState();
-
-}
-
-
-
-/* ========================================
-   TIMELINE
-======================================== */
-
-function renderTimeline() {
-
-  timeline.innerHTML =
-    "";
-
-
-  /* 48 HALF-HOUR SLOTS */
-
-  for (
-    let slotIndex = 0;
-    slotIndex < 48;
-    slotIndex += 1
-  ) {
-
-    const label =
-      document.createElement(
-        "div"
-      );
-
-
-    label.className =
-      "time-label";
-
-
-    label.style.gridRow =
-      String(
-        slotIndex + 1
-      );
-
-
-    label.style.gridColumn =
-      "1";
-
-
-    if (
-      slotIndex % 2 ===
-      0
-    ) {
-
-      label.textContent =
-        indexToTime(
-          slotIndex
-        );
-
-    }
-
-
-    timeline.append(
-      label
-    );
-
-
-    const slot =
-      document.createElement(
-        "button"
-      );
-
-
-    slot.type =
-      "button";
-
-
-    slot.className =
-      slotIndex % 2 ===
-        0
-        ? "time-slot whole-hour"
-        : "time-slot half-hour";
-
-
-    slot.style.gridRow =
-      String(
-        slotIndex + 1
-      );
-
-
-    slot.style.gridColumn =
-      "2";
-
-
-    const slotTime =
-      indexToTime(
-        slotIndex
-      );
-
-
-    slot.addEventListener(
-      "click",
-      () => {
-
-        const startMinutes =
-          timeToMinutes(
-            slotTime
-          );
-
-
-        const endMinutes =
-          Math.min(
-            startMinutes + 60,
-            1440
-          );
-
-
-        openEditor({
-
-          type:
-            "plan",
-
-          start:
-            slotTime,
-
-          end:
-            minutesToTime(
-              endMinutes
-            )
-
-        });
-
-      }
-    );
-
-
-    timeline.append(
-      slot
-    );
-
-  }
-
-
-
-  /* EVENTS */
-
-  const items =
-    getItemsForDate(
-      state.selectedDate
-    );
-
-
-  for (
-    const item
-    of items
-  ) {
-
-    const startIndex =
-      timeToMinutes(
-        item.start
-      ) / 30;
-
-
-    const endIndex =
-      timeToMinutes(
-        item.end
-      ) / 30;
-
-
-    if (
-      !Number.isInteger(
-        startIndex
-      ) ||
-      !Number.isInteger(
-        endIndex
-      ) ||
-      endIndex <=
-        startIndex
-    ) {
-
-      continue;
-
-    }
-
-
-    const block =
-      document.createElement(
-        "button"
-      );
-
-
-    block.type =
-      "button";
-
-
-    if (
-      item.source ===
-      "friend"
-    ) {
-
-      block.className =
-        "event-block friend-plan";
-
-    } else {
-
-      block.className =
-        `event-block ${item.type} ${item.category}`;
-
-    }
-
-
-    block.style.gridRow =
-      `${startIndex + 1} / ${endIndex + 1}`;
-
-
-    block.style.gridColumn =
-      "2";
-
-
-    const title =
-      document.createElement(
-        "strong"
-      );
-
-
-    title.textContent =
-      item.title;
-
-
-    const details =
-      document.createElement(
-        "span"
-      );
-
-
-    if (
-      item.source ===
-      "friend"
-    ) {
-
-      details.textContent =
-        `${item.start}–${item.end} · proposed by ${item.createdByName}`;
-
-    } else if (
-      item.type ===
-      "plan"
-    ) {
-
-      details.textContent =
-        `${item.start}–${item.end} · ${item.createdByName}`;
-
-    } else {
-
-      details.textContent =
-        `${item.start}–${item.end}`;
-
-    }
-
-
-    block.append(
-      title,
-      details
-    );
-
-
-    block.addEventListener(
-      "click",
-      () => {
-
-        if (
-          item.source ===
-          "friend"
-        ) {
-
-          openFriendProposal(
-            item
-          );
-
-        } else {
-
-          openEditor({
-            item
-          });
-
-        }
-
-      }
-    );
-
-
-    timeline.append(
-      block
-    );
-
-  }
-
-}
-
-
-
-/* ========================================
-   FRIEND PROPOSAL DETAILS
-======================================== */
-
-function openFriendProposal(
-  item
-) {
-
-  friendProposalTitle.textContent =
-    item.title;
-
-
-  friendProposalCreator.textContent =
-    item.createdByName;
-
-
-  friendProposalDate.textContent =
-    formatDateLong(
-      item.date
-    );
-
-
-  friendProposalTime.textContent =
-    `${item.start}–${item.end}`;
-
-
-  friendProposalNotes.textContent =
-    item.notes?.trim()
-      ? item.notes
-      : "No notes added.";
-
-
-  friendProposalModal
-    .classList
-    .remove(
-      "hidden"
-    );
-
-
-  document.body.classList.add(
-    "modal-open"
-  );
-
-}
-
-
-
-/* ========================================
-   CLOSE FRIEND PROPOSAL
-======================================== */
-
-function closeFriendProposal() {
-
-  friendProposalModal
-    .classList
-    .add(
-      "hidden"
-    );
-
-
-  updateBodyModalState();
-
-}
-
-
-
-/* ========================================
-   CUSTOM EVENT FIELD
-======================================== */
-
-function updateCustomTitleField() {
-
-  const customSelected =
-    templateSelect.value ===
-    "custom";
-
-
-  customTitleField
-    .classList
-    .toggle(
-      "hidden",
-      !customSelected
-    );
-
-
-  customEventTitle.required =
-    customSelected;
-
-
-  if (
-    !customSelected
-  ) {
-
-    customEventTitle.value =
-      "";
-
-  }
-
-}
-
-
-
-/* ========================================
-   OPEN PRIVATE EVENT EDITOR
-======================================== */
-
-function openEditor({
-
-  type =
-    "plan",
-
-  start =
-    "09:00",
-
-  end =
-    "10:00",
-
-  item =
-    null
-
-} = {}) {
-
-
-  eventForm.reset();
-
-
-  formMessage.textContent =
-    "";
-
-
-  state.editingId =
-    item?.id ??
-    null;
-
-
-  const itemType =
-    item?.type ??
-    type;
-
-
-  itemTypeInput.value =
-    itemType;
-
-
-  const isPlan =
-    itemType ===
-    "plan";
-
-
-  const canEdit =
-    item
-      ? canEditItem(
-          item
-        )
-      : (
-          isPlan ||
-          isOwner()
-        );
-
-
-  state.editorReadOnly =
-    !canEdit;
-
-
-  planFields.classList.toggle(
-    "hidden",
-    !isPlan
-  );
-
-
-  scheduleFields.classList.toggle(
-    "hidden",
-    isPlan
-  );
-
-
-
-  if (
-    item
-  ) {
-
-    editorLabel.textContent =
-      canEdit
-        ? "edit event"
-        : "view event";
-
-
-    editorHeading.textContent =
-      item.title;
-
-
-    editorMeta.textContent =
-      `created by ${item.createdByName}`;
-
-
-    saveEventButton.textContent =
-      "Save changes";
-
-  } else {
-
-    editorLabel.textContent =
-      isPlan
-        ? "create a plan"
-        : "add my schedule";
-
-
-    editorHeading.textContent =
-      isPlan
-        ? "Add an event"
-        : "Add my schedule";
-
-
-    editorMeta.textContent =
-      "";
-
-
-    saveEventButton.textContent =
-      isPlan
-        ? "Add event"
-        : "Add schedule";
-
-  }
-
-
-
-  /* TEMPLATE */
-
-  if (
-    item &&
-    isPlan
-  ) {
-
-    if (
-      item.template &&
-      templates[
-        item.template
-      ]
-    ) {
-
-      templateSelect.value =
-        item.template;
-
-    } else {
-
-      templateSelect.value =
-        "custom";
-
-    }
-
-  } else {
-
-    templateSelect.value =
-      "";
-
-  }
-
-
-
-  /* CUSTOM TITLE */
-
-  if (
-    item &&
-    isPlan &&
-    (
-      item.template ===
-        "custom" ||
-      !templates[
-        item.template
-      ]
-    )
-  ) {
-
-    customEventTitle.value =
-      item.title || "";
-
-  } else {
-
-    customEventTitle.value =
-      "";
-
-  }
-
-
-  updateCustomTitleField();
-
-
-
-  /* SCHEDULE */
-
-  scheduleTypeSelect.value =
-    item?.category ===
-      "busy"
-      ? "busy"
-      : "work";
-
-
-
-  /* DATE */
-
-  eventDateInput.value =
-    item?.date ||
-    state.selectedDate ||
-    toDateKey(
-      new Date()
-    );
-
-
-
-  /* TIMES */
-
-  startTimeSelect.value =
-    item?.start ||
-    start;
-
-
-  endTimeSelect.value =
-    item?.end ||
-    end;
-
-
-
-  /* NOTES */
-
-  notesInput.value =
-    item?.notes ||
-    "";
-
-
-
-  setEditorDisabled(
-    !canEdit
-  );
-
-
-  deleteEventButton
-    .classList
-    .toggle(
-
-      "hidden",
-
-      !item ||
-      !canEdit
-
-    );
-
-
-  saveEventButton
-    .classList
-    .toggle(
-      "hidden",
-      !canEdit
-    );
-
-
-  cancelEditorButton.textContent =
-    canEdit
-      ? "Cancel"
-      : "Close";
-
-
-  eventModal.classList.remove(
-    "hidden"
-  );
-
-
-  document.body.classList.add(
-    "modal-open"
-  );
-
-}
-
-
-
-/* ========================================
-   PERMISSIONS
-======================================== */
-
-function canEditItem(
-  item
-) {
-
-  if (
-    item.source !==
-    "private"
-  ) {
-
-    return false;
-
-  }
-
-
-  if (
-    isOwner()
-  ) {
-
-    return true;
-
-  }
-
-
-  return (
-
-    item.type ===
-      "plan" &&
-
-    item.createdBy ===
-      state.user?.id
-
-  );
-
-}
-
-
-
-/* ========================================
-   OWNER CHECK
-======================================== */
-
-function isOwner() {
-
-  return (
-    state.profile?.role ===
-    "owner"
-  );
-
-}
-
-
-
-/* ========================================
-   DISABLE EDITOR
-======================================== */
-
-function setEditorDisabled(
-  disabled
-) {
-
-  templateSelect.disabled =
-    disabled;
-
-
-  customEventTitle.disabled =
-    disabled;
-
-
-  scheduleTypeSelect.disabled =
-    disabled;
-
-
-  eventDateInput.disabled =
-    disabled;
-
-
-  startTimeSelect.disabled =
-    disabled;
-
-
-  endTimeSelect.disabled =
-    disabled;
-
-
-  notesInput.disabled =
-    disabled;
-
-}
-
-
-
-/* ========================================
-   CLOSE EDITOR
-======================================== */
-
-function closeEditor() {
-
-  eventModal.classList.add(
-    "hidden"
-  );
-
-
-  state.editingId =
-    null;
-
-
-  state.editorReadOnly =
-    false;
-
-
-  formMessage.textContent =
-    "";
-
-
-  setEditorDisabled(
-    false
-  );
-
-
-  updateBodyModalState();
-
-}
-
-
-
-/* ========================================
-   TEMPLATE DURATION
-======================================== */
-
-function applyTemplateDuration() {
-
-  const selectedTemplate =
-    templates[
-      templateSelect.value
-    ];
-
-
-  if (
-    !selectedTemplate
-  ) {
-
-    return;
-
-  }
-
-
-  const startMinutes =
-    timeToMinutes(
-      startTimeSelect.value
-    );
-
-
-  const newEndMinutes =
-    Math.min(
-
-      startMinutes +
-      selectedTemplate.duration,
-
-      1440
-
-    );
-
-
-  endTimeSelect.value =
-    minutesToTime(
-      newEndMinutes
-    );
-
-}
-
-
-
-/* ========================================
-   SAVE PRIVATE ITEM
-======================================== */
-
-async function saveItem(
-  event
-) {
-
-  event.preventDefault();
-
-
-  if (
-    state.editorReadOnly
-  ) {
-
-    return;
-
-  }
-
-
-  formMessage.textContent =
-    "";
-
-
-  const type =
-    itemTypeInput.value;
-
-
-  const date =
-    eventDateInput.value;
-
-
-  const start =
-    startTimeSelect.value;
-
-
-  const end =
-    endTimeSelect.value;
-
-
-
-  if (
-    !date
-  ) {
-
-    showFormError(
-      "Please select a date."
-    );
-
-
-    return;
-
-  }
-
-
-
-  const startMinutes =
-    timeToMinutes(
-      start
-    );
-
-
-  const endMinutes =
-    timeToMinutes(
-      end
-    );
-
-
-  if (
-    endMinutes <=
-    startMinutes
-  ) {
-
-    showFormError(
-      "The end time must be later than the start time."
-    );
-
-
-    return;
-
-  }
-
-
-
-  let title;
-
-  let template =
-    null;
-
-  let category;
-
-
-
-  /* PLAN */
-
-  if (
-    type ===
-    "plan"
-  ) {
-
-    template =
-      templateSelect.value;
-
-
-    const selectedTemplate =
-      templates[
-        template
-      ];
-
-
-    if (
-      !selectedTemplate
-    ) {
-
-      showFormError(
-        "Please select a template."
-      );
-
-
-      return;
-
-    }
-
-
-    if (
-      template ===
-      "custom"
-    ) {
-
-      title =
-        customEventTitle
-          .value
-          .trim();
-
-
-      if (
-        !title
-      ) {
-
-        showFormError(
-          "Please type the event name."
-        );
-
-
-        customEventTitle.focus();
-
-
-        return;
-
-      }
-
-    } else {
-
-      title =
-        selectedTemplate.title;
-
-    }
-
-
-    category =
-      "plan";
-
-  }
-
-
-
-  /* SCHEDULE */
-
-  else {
-
-    if (
-      !isOwner()
-    ) {
-
-      showFormError(
-        "Only the owner can change the schedule."
-      );
-
-
-      return;
-
-    }
-
-
-    category =
-      scheduleTypeSelect.value;
-
-
-    title =
-      category ===
-        "work"
-        ? "Work"
-        : "Busy";
-
-  }
-
-
-
-  /*
-   * CHECK AGAINST PRIVATE CALENDAR
-   * AND FRIEND PROPOSALS
-   */
-
-  const conflictingItem =
-    state.items.find(
-      item => {
-
-        if (
-          (
-            item.source ===
-              "private" &&
-            item.id ===
-              state.editingId
-          ) ||
-          item.date !==
-            date
-        ) {
-
-          return false;
-
-        }
-
-
-        const existingStart =
-          timeToMinutes(
-            item.start
-          );
-
-
-        const existingEnd =
-          timeToMinutes(
-            item.end
-          );
-
-
-        return (
-
-          startMinutes <
-            existingEnd &&
-
-          endMinutes >
-            existingStart
-
-        );
-
-      }
-    );
-
-
-  if (
-    conflictingItem
-  ) {
-
-    showFormError(
-
-      `This overlaps with “${conflictingItem.title}” from ${conflictingItem.start} to ${conflictingItem.end}.`
-
-    );
-
-
-    return;
-
-  }
-
-
-
-  const payload = {
-
-    item_type:
-      type,
-
-    title,
-
-    template:
-      type ===
-        "plan"
-        ? template
-        : null,
-
-    event_date:
-      date,
-
-    start_time:
-      start,
-
-    end_time:
-      end,
-
-    notes:
-      notesInput
-        .value
-        .trim(),
-
-    category
-
-  };
-
-
-  saveEventButton.disabled =
-    true;
-
-
-  saveEventButton.textContent =
-    "Saving...";
-
-
-  let error;
-
-
-
-  if (
-    state.editingId
-  ) {
-
-    const result =
-      await supabase
-        .from(
-          "calendar_items"
-        )
-        .update(
-          payload
-        )
-        .eq(
-          "id",
-          state.editingId
-        );
-
-
-    error =
-      result.error;
-
-  } else {
-
-    const result =
-      await supabase
-        .from(
-          "calendar_items"
-        )
-        .insert(
-          payload
-        );
-
-
-    error =
-      result.error;
-
-  }
-
-
-  saveEventButton.disabled =
-    false;
-
-
-
-  if (
-    error
-  ) {
-
-    console.error(
-      "Save error:",
-      error
-    );
-
-
-    saveEventButton.textContent =
-      state.editingId
-        ? "Save changes"
-        : (
-            type ===
-              "plan"
-              ? "Add event"
-              : "Add schedule"
-          );
-
-
-    showFormError(
-      "Could not save the event."
-    );
-
-
-    return;
-
-  }
-
-
-
-  state.selectedDate =
-    date;
-
-
-  const selectedDateObject =
-    new Date(
-      `${date}T00:00:00`
-    );
-
-
-  state.currentDate =
-    new Date(
-
-      selectedDateObject
-        .getFullYear(),
-
-      selectedDateObject
-        .getMonth(),
-
-      1
-
-    );
-
-
-  await loadAllItems();
-
-
-  dayTitle.textContent =
-    formatDateLong(
-      date
-    );
-
-
-  closeEditor();
-
-
-  renderTimeline();
-
-
-  renderCalendar();
-
-}
-
-
-
-/* ========================================
-   DELETE PRIVATE ITEM
-======================================== */
-
-async function deleteCurrentItem() {
-
-  if (
-    !state.editingId
-  ) {
-
-    return;
-
-  }
-
-
-  const item =
-    state.privateItems.find(
-      entry =>
-        entry.id ===
-        state.editingId
-    );
-
-
-  if (
-    !item ||
-    !canEditItem(
-      item
-    )
-  ) {
-
-    return;
-
-  }
-
-
-  deleteEventButton.disabled =
-    true;
-
-
-  deleteEventButton.textContent =
-    "Deleting...";
-
-
-  const {
-    error
-  } =
-    await supabase
-      .from(
-        "calendar_items"
-      )
-      .delete()
-      .eq(
-        "id",
-        state.editingId
-      );
-
-
-  deleteEventButton.disabled =
-    false;
-
-
-  deleteEventButton.textContent =
-    "Delete";
-
-
-  if (
-    error
-  ) {
-
-    console.error(
-      "Delete error:",
-      error
-    );
-
-
-    showFormError(
-      "Could not delete the event."
-    );
-
-
-    return;
-
-  }
-
-
-  await loadAllItems();
-
-
-  closeEditor();
-
-
-  renderTimeline();
-
-
-  renderCalendar();
-
-}
-
-
-
-/* ========================================
-   OLD LOCAL STORAGE MIGRATION
-======================================== */
-
-async function migrateOldLocalItems() {
-
-  const migrationMarker =
-    "shared_calendar_supabase_migrated_v1";
-
-
-  if (
-    !isOwner()
-  ) {
-
-    return;
-
-  }
-
-
-  if (
-    localStorage.getItem(
-      migrationMarker
-    ) ===
-    "yes"
-  ) {
-
-    return;
-
-  }
-
-
-  if (
-    state.privateItems.length >
-    0
-  ) {
-
-    localStorage.setItem(
-      migrationMarker,
-      "yes"
-    );
-
-
-    return;
-
-  }
-
-
-  const possibleKeys = [
-
-    "shared_calendar_items_v2",
-
-    "shared_calendar_items_v1"
-
-  ];
-
-
-  let oldItems =
-    [];
-
-
-  for (
-    const key
-    of possibleKeys
-  ) {
-
-    try {
-
-      const raw =
-        localStorage.getItem(
-          key
-        );
-
-
-      if (
-        !raw
-      ) {
-
-        continue;
-
-      }
-
-
-      const parsed =
-        JSON.parse(
-          raw
-        );
-
-
-      if (
-        Array.isArray(
-          parsed
-        ) &&
-        parsed.length
-      ) {
-
-        oldItems =
-          parsed;
-
-
-        break;
-
-      }
-
-    } catch (
-      error
-    ) {
-
-      console.warn(
-        "Could not read old calendar data:",
-        error
-      );
-
-    }
-
-  }
-
-
-  if (
-    !oldItems.length
-  ) {
-
-    localStorage.setItem(
-      migrationMarker,
-      "yes"
-    );
-
-
-    return;
-
-  }
-
-
-  const rows =
-    [];
-
-
-  for (
-    const item
-    of oldItems
-  ) {
-
-    if (
-      !item.date ||
-      !item.start ||
-      !item.end
-    ) {
-
-      continue;
-
-    }
-
-
-    const type =
-      item.type ===
-        "schedule"
-        ? "schedule"
-        : "plan";
-
-
-    let category;
-
-
-    if (
-      type ===
-      "schedule"
-    ) {
-
-      category =
-        item.category ===
-          "busy"
-          ? "busy"
-          : "work";
-
-    } else {
-
-      category =
-        "plan";
-
-    }
-
-
-    rows.push({
-
-      item_type:
-        type,
-
-      title:
-        item.title ||
-        (
-          type ===
-            "schedule"
-            ? (
-                category ===
-                  "work"
-                  ? "Work"
-                  : "Busy"
-              )
-            : "Plan"
-        ),
-
-      template:
-        type ===
-          "plan"
-          ? (
-              item.template ||
-              "custom"
-            )
-          : null,
-
-      event_date:
-        item.date,
-
-      start_time:
-        normaliseDatabaseTime(
-          item.start
-        ),
-
-      end_time:
-        normaliseDatabaseTime(
-          item.end
-        ),
-
-      notes:
-        item.notes || "",
-
-      category
-
+    });
+    cell.addEventListener("dblclick", event => {
+      if (event.target.closest(".event-chip")) return;
+      openEditor({ type: "schedule", date: isoDate });
+    });
+    cell.addEventListener("dragover", event => {
+      if (!state.draggedItemId) return;
+      event.preventDefault();
+      cell.classList.add("drag-over");
+    });
+    cell.addEventListener("dragleave", () => cell.classList.remove("drag-over"));
+    cell.addEventListener("drop", event => {
+      event.preventDefault();
+      cell.classList.remove("drag-over");
+      copyDraggedItem(isoDate);
     });
 
+    elements.calendarDays.append(cell);
   }
-
-
-  if (
-    !rows.length
-  ) {
-
-    localStorage.setItem(
-      migrationMarker,
-      "yes"
-    );
-
-
-    return;
-
-  }
-
-
-  const {
-    error
-  } =
-    await supabase
-      .from(
-        "calendar_items"
-      )
-      .insert(
-        rows
-      );
-
-
-  if (
-    error
-  ) {
-
-    console.error(
-      "Old calendar import failed:",
-      error
-    );
-
-
-    return;
-
-  }
-
-
-  localStorage.setItem(
-    migrationMarker,
-    "yes"
-  );
-
 }
 
+function createEventChip(item) {
+  const button = document.createElement("button");
+  const kind = kindForItem(item);
+  button.className = `event-chip kind-${kind}`;
+  button.type = "button";
+  button.draggable = canEditItem(item);
+  button.dataset.itemId = item.id;
+  button.title = `${item.title} · ${item.all_day ? "All day" : formatTimeRange(item)}`;
 
+  const time = document.createElement("span");
+  time.className = "event-time";
+  time.textContent = item.all_day ? "All day" : formatTime(item.start_time);
+  const title = document.createElement("span");
+  title.className = "event-title";
+  title.textContent = item.title;
+  button.append(time, title);
 
-/* ========================================
-   BUILD TIME OPTIONS
-======================================== */
+  if (item.item_type === "plan") {
+    const status = document.createElement("span");
+    status.className = "event-status";
+    status.textContent = shortStatus(item.status);
+    button.append(status);
+  }
+
+  button.addEventListener("click", event => {
+    event.stopPropagation();
+    if (item.item_type === "schedule" && canEditItem(item)) openEditor({ itemId: item.id });
+    else openDetail(item.id);
+  });
+
+  button.addEventListener("dragstart", event => {
+    if (!canEditItem(item)) return event.preventDefault();
+    state.draggedItemId = item.id;
+    button.classList.add("dragging");
+    document.body.classList.add("is-dragging");
+    event.dataTransfer.effectAllowed = "copy";
+    event.dataTransfer.setData("text/plain", item.id);
+  });
+  button.addEventListener("dragend", () => finishDragging());
+  return button;
+}
+
+function itemsForDate(isoDate) {
+  return state.items
+    .filter(item => item.event_date === isoDate && item.status !== "cancelled")
+    .sort((a, b) => a.start_time.localeCompare(b.start_time));
+}
+
+function matchesCurrentFilter(item) {
+  if (state.filter === "all") return true;
+  if (state.filter === "together") return item.item_type === "plan";
+  const profile = state.profiles.get(item.created_by);
+  if (state.filter === "cj") return item.item_type === "schedule" && profile?.role === "owner";
+  if (state.filter === "aleckz") return item.item_type === "schedule" && profile?.role !== "owner";
+  return true;
+}
+
+function changeMonth(offset) {
+  state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + offset, 1);
+  renderCalendar();
+}
+
+async function copyDraggedItem(targetDate) {
+  const item = state.items.find(entry => entry.id === state.draggedItemId);
+  if (!item || !canEditItem(item)) return finishDragging();
+  if (targetDate === item.event_date) {
+    finishDragging();
+    return showToast("Choose a different date to copy this entry.");
+  }
+  await copyItemToDate(item, targetDate);
+  finishDragging();
+}
+
+async function copyItemToAdjacentMonth(offset) {
+  const item = state.items.find(entry => entry.id === state.draggedItemId);
+  if (!item || !canEditItem(item)) return finishDragging();
+  const source = parseISODate(item.event_date);
+  const targetMonth = new Date(source.getFullYear(), source.getMonth() + offset, 1);
+  const lastDay = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
+  const target = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), Math.min(source.getDate(), lastDay));
+  await copyItemToDate(item, toISODate(target));
+  state.currentDate = new Date(target.getFullYear(), target.getMonth(), 1);
+  finishDragging();
+  renderCalendar();
+}
+
+async function copyItemToDate(item, targetDate) {
+  setCalendarMessage("Copying entry...");
+  const payload = {
+    item_type: item.item_type,
+    title: item.title,
+    template: item.template,
+    event_date: targetDate,
+    start_time: normaliseTime(item.start_time),
+    end_time: normaliseTime(item.end_time),
+    notes: item.notes || "",
+    category: item.category,
+    created_by: state.user.id,
+    location: item.location || "",
+    status: item.item_type === "schedule" ? "confirmed" : "pending",
+    invited_user_id: item.item_type === "plan" ? (item.invited_user_id || state.otherProfile?.id) : null,
+    all_day: Boolean(item.all_day),
+    recurrence_group_id: null,
+    response_note: "",
+    suggested_date: null,
+    suggested_start_time: null,
+    suggested_end_time: null,
+    suggested_location: "",
+    responded_at: null,
+    last_action_by: state.user.id
+  };
+
+  const { error } = await supabase.from("calendar_items").insert(payload);
+  if (error) {
+    setCalendarMessage("The entry could not be copied.", true);
+    showToast("The entry could not be copied.");
+  } else {
+    await loadItems();
+    showToast(`Copied to ${formatLongDate(targetDate)}.`);
+  }
+}
+
+function finishDragging() {
+  state.draggedItemId = null;
+  document.body.classList.remove("is-dragging");
+  $$(".dragging, .drag-over").forEach(item => item.classList.remove("dragging", "drag-over"));
+}
+
+function openDayView(isoDate) {
+  state.selectedDate = isoDate;
+  renderDayView();
+  elements.dayModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+function renderDayView() {
+  const date = parseISODate(state.selectedDate);
+  elements.dayTitle.textContent = date.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const items = itemsForDate(state.selectedDate);
+  const allDay = items.filter(item => item.all_day);
+  const timed = items.filter(item => !item.all_day);
+
+  elements.allDayItems.replaceChildren();
+  elements.allDayItems.classList.toggle("hidden", allDay.length === 0);
+  allDay.forEach(item => {
+    const button = document.createElement("button");
+    button.className = `all-day-item kind-${kindForItem(item)}`;
+    button.type = "button";
+    button.textContent = `All day · ${item.title}`;
+    applyKindColours(button, item);
+    button.addEventListener("click", () => item.item_type === "schedule" && canEditItem(item) ? openEditor({ itemId: item.id }) : openDetail(item.id));
+    elements.allDayItems.append(button);
+  });
+
+  elements.timeline.replaceChildren();
+  for (let slot = 0; slot < 48; slot += 1) {
+    const minutes = slot * 30;
+    if (slot % 2 === 0) {
+      const label = document.createElement("span");
+      label.className = "time-label";
+      label.style.gridColumn = "1";
+      label.style.gridRow = String(slot + 1);
+      label.textContent = formatMinutes(minutes);
+      elements.timeline.append(label);
+    }
+    const slotButton = document.createElement("button");
+    slotButton.className = `time-slot ${slot % 2 ? "half-hour" : "whole-hour"}`;
+    slotButton.type = "button";
+    slotButton.style.gridColumn = "2";
+    slotButton.style.gridRow = String(slot + 1);
+    slotButton.setAttribute("aria-label", `Add schedule at ${formatMinutes(minutes)}`);
+    slotButton.addEventListener("click", () => openEditor({
+      type: "schedule",
+      date: state.selectedDate,
+      start: minutesToTime(minutes),
+      end: minutesToTime(Math.min(minutes + 60, 1439))
+    }));
+    elements.timeline.append(slotButton);
+  }
+
+  timed.forEach(item => {
+    const start = timeToMinutes(item.start_time);
+    const end = timeToMinutes(item.end_time);
+    const button = document.createElement("button");
+    button.className = `timeline-event kind-${kindForItem(item)}`;
+    button.type = "button";
+    button.style.gridColumn = "2";
+    button.style.gridRow = `${Math.floor(start / 30) + 1} / ${Math.max(Math.floor(start / 30) + 2, Math.ceil(end / 30) + 1)}`;
+    const title = document.createElement("strong");
+    title.textContent = item.title;
+    const meta = document.createElement("span");
+    meta.textContent = `${formatTimeRange(item)}${item.location ? ` · ${item.location}` : ""}`;
+    button.append(title, meta);
+    button.addEventListener("click", () => item.item_type === "schedule" && canEditItem(item) ? openEditor({ itemId: item.id }) : openDetail(item.id));
+    elements.timeline.append(button);
+  });
+}
+
+function closeDayView() {
+  elements.dayModal.classList.add("hidden");
+  state.selectedDate = null;
+  syncBodyModalState();
+}
+
+function openEditor({ type = "schedule", date = null, start = "09:00", end = "17:00", itemId = null } = {}) {
+  const item = itemId ? state.items.find(entry => entry.id === itemId) : null;
+  if (item && !canEditItem(item)) return openDetail(item.id);
+
+  state.editingId = item?.id || null;
+  const itemType = item?.item_type || type;
+  const itemDate = item?.event_date || date || toISODate(new Date());
+  elements.itemType.value = itemType;
+  elements.eventDate.value = itemDate;
+  elements.startTime.value = normaliseTime(item?.start_time || start);
+  elements.endTime.value = normaliseTime(item?.end_time || end);
+  elements.eventAllDay.checked = Boolean(item?.all_day);
+  elements.eventLocation.value = item?.location || "";
+  elements.eventNotes.value = item?.notes || "";
+  elements.formMessage.textContent = "";
+  elements.formMessage.classList.remove("success");
+  elements.repeatSchedule.checked = false;
+  elements.repeatOptions.classList.add("hidden");
+  elements.repeatEndDate.value = itemDate;
+  $$(".weekday-pills input").forEach(input => { input.checked = false; });
+
+  const isPlan = itemType === "plan";
+  elements.scheduleFields.classList.toggle("hidden", isPlan);
+  elements.planFields.classList.toggle("hidden", !isPlan);
+  elements.repeatSection.classList.toggle("hidden", isPlan || Boolean(item));
+  elements.editorLabel.textContent = isPlan ? `invite ${displayName(state.otherProfile)}` : "update my schedule";
+  elements.editorHeading.textContent = item ? (isPlan ? "Edit plan" : "Edit schedule") : (isPlan ? "Make a plan together" : "Add schedule");
+  elements.editorMeta.textContent = item ? `Created by ${displayName(state.profiles.get(item.created_by))}` : formatLongDate(itemDate);
+  elements.saveEventButton.textContent = item ? "Save changes" : (isPlan ? `Send invite to ${displayName(state.otherProfile)}` : "Save schedule");
+  elements.deleteEvent.classList.toggle("hidden", !item);
+
+  if (isPlan) {
+    const templateKey = item?.template && templates[item.template] ? item.template : "custom";
+    elements.templateSelect.value = templateKey;
+    elements.customEventTitle.value = templateKey === "custom" ? (item?.title || "") : "";
+    elements.inviteeName.textContent = displayName(item?.invited_user_id ? state.profiles.get(item.invited_user_id) : state.otherProfile);
+    updateCustomTitleField();
+  } else {
+    elements.scheduleType.value = item?.category || "work";
+    elements.scheduleTitle.value = item?.category === "other" ? (item.title || "") : "";
+    updateScheduleTitleField();
+  }
+
+  syncAllDayFields();
+  elements.eventModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+function closeEditor() {
+  elements.eventModal.classList.add("hidden");
+  state.editingId = null;
+  elements.eventForm.reset();
+  elements.formMessage.textContent = "";
+  syncBodyModalState();
+}
+
+async function saveItem(event) {
+  event.preventDefault();
+  elements.formMessage.textContent = "";
+  elements.saveEventButton.disabled = true;
+  const existing = state.items.find(item => item.id === state.editingId) || null;
+  const itemType = elements.itemType.value;
+  const allDay = elements.eventAllDay.checked;
+  const startTime = allDay ? "00:00" : elements.startTime.value;
+  const endTime = allDay ? "23:59" : elements.endTime.value;
+
+  if (!elements.eventDate.value || timeToMinutes(endTime) <= timeToMinutes(startTime)) {
+    elements.formMessage.textContent = "Choose a valid date and end time.";
+    elements.saveEventButton.disabled = false;
+    return;
+  }
+
+  let title;
+  let template = null;
+  let category;
+  if (itemType === "schedule") {
+    category = elements.scheduleType.value;
+    title = category === "other" ? elements.scheduleTitle.value.trim() : scheduleLabels[category];
+    if (!title) {
+      elements.formMessage.textContent = "Enter a name for this schedule.";
+      elements.saveEventButton.disabled = false;
+      return;
+    }
+  } else {
+    template = elements.templateSelect.value;
+    title = template === "custom" ? elements.customEventTitle.value.trim() : templates[template]?.title;
+    category = "plan";
+    if (!title) {
+      elements.formMessage.textContent = "Enter a name for this plan.";
+      elements.saveEventButton.disabled = false;
+      return;
+    }
+  }
+
+  const isExistingLegacyPlan = itemType === "plan" && existing && !existing.invited_user_id;
+  const payload = {
+    item_type: itemType,
+    title: title.slice(0, 80),
+    template,
+    event_date: elements.eventDate.value,
+    start_time: startTime,
+    end_time: endTime,
+    notes: elements.eventNotes.value.trim(),
+    category,
+    location: elements.eventLocation.value.trim(),
+    all_day: allDay,
+    status: itemType === "schedule" || isExistingLegacyPlan ? "confirmed" : "pending",
+    invited_user_id: itemType === "plan" ? (isExistingLegacyPlan ? null : (existing?.invited_user_id || state.otherProfile?.id)) : null,
+    response_note: "",
+    suggested_date: null,
+    suggested_start_time: null,
+    suggested_end_time: null,
+    suggested_location: "",
+    responded_at: null,
+    last_action_by: state.user.id
+  };
+
+  let error;
+  let savedCount = 1;
+  if (existing) {
+    ({ error } = await supabase.from("calendar_items").update(payload).eq("id", existing.id));
+  } else if (itemType === "schedule" && elements.repeatSchedule.checked) {
+    const repeatResult = buildRecurringPayloads(payload);
+    if (repeatResult.error) {
+      elements.formMessage.textContent = repeatResult.error;
+      elements.saveEventButton.disabled = false;
+      return;
+    }
+    savedCount = repeatResult.rows.length;
+    ({ error } = await supabase.from("calendar_items").insert(repeatResult.rows));
+  } else {
+    ({ error } = await supabase.from("calendar_items").insert({ ...payload, created_by: state.user.id }));
+  }
+
+  elements.saveEventButton.disabled = false;
+  if (error) {
+    elements.formMessage.textContent = friendlyDatabaseError(error);
+    return;
+  }
+
+  closeEditor();
+  await loadItems();
+  showToast(existing ? "Changes saved." : savedCount > 1 ? `${savedCount} schedule entries added.` : itemType === "plan" ? `Invitation sent to ${displayName(state.otherProfile)}.` : "Schedule added.");
+}
+
+function buildRecurringPayloads(payload) {
+  const start = parseISODate(elements.eventDate.value);
+  const end = parseISODate(elements.repeatEndDate.value);
+  const weekdays = $$(".weekday-pills input:checked").map(input => Number(input.value));
+  if (!elements.repeatEndDate.value || end < start) return { error: "Choose a repeat end date on or after the first date." };
+  if (!weekdays.length) return { error: "Choose at least one weekday to repeat on." };
+  const daysApart = Math.round((end - start) / 86400000);
+  if (daysApart > 366) return { error: "A repeating schedule can cover up to one year at a time." };
+
+  const recurrenceId = crypto.randomUUID();
+  const rows = [];
+  for (const cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+    const weekday = ((cursor.getDay() + 6) % 7) + 1;
+    if (weekdays.includes(weekday)) {
+      rows.push({
+        ...payload,
+        event_date: toISODate(cursor),
+        created_by: state.user.id,
+        recurrence_group_id: recurrenceId
+      });
+    }
+  }
+  if (!rows.length) return { error: "No selected weekdays occur in that date range." };
+  return { rows };
+}
+
+async function deleteCurrentItem() {
+  const item = state.items.find(entry => entry.id === state.editingId);
+  if (!item || !canEditItem(item)) return;
+  if (!window.confirm(`Delete “${item.title}”?`)) return;
+  elements.deleteEvent.disabled = true;
+  const { error } = await supabase.from("calendar_items").delete().eq("id", item.id);
+  elements.deleteEvent.disabled = false;
+  if (error) return elements.formMessage.textContent = "This entry could not be deleted.";
+  closeEditor();
+  await loadItems();
+  showToast("Entry deleted.");
+}
+
+function openDetail(itemId) {
+  const item = state.items.find(entry => entry.id === itemId);
+  if (!item) return;
+  state.detailId = item.id;
+  const creator = state.profiles.get(item.created_by);
+  const isPlan = item.item_type === "plan";
+  elements.detailLabel.textContent = isPlan ? "plan together" : `${displayName(creator)}'s schedule`;
+  elements.detailTitle.textContent = item.title;
+  elements.detailStatus.textContent = humanStatus(item.status);
+  elements.detailStatus.className = `status-pill ${item.status}`;
+  elements.detailStatus.classList.toggle("hidden", !isPlan);
+  elements.detailCreator.textContent = displayName(creator);
+  elements.detailDate.textContent = formatLongDate(item.event_date);
+  elements.detailTime.textContent = item.all_day ? "All day" : formatTimeRange(item);
+  elements.detailLocation.textContent = item.location || "";
+  elements.detailLocationRow.classList.toggle("hidden", !item.location);
+  elements.detailNotes.textContent = item.notes || "";
+  elements.detailNotesRow.classList.toggle("hidden", !item.notes);
+  elements.detailMessage.textContent = "";
+  elements.suggestionForm.classList.add("hidden");
+
+  const hasSuggestion = isPlan && item.status === "changes_suggested" && item.suggested_date;
+  elements.suggestionSummary.classList.toggle("hidden", !hasSuggestion);
+  if (hasSuggestion) {
+    elements.suggestionWhen.textContent = `${formatLongDate(item.suggested_date)} · ${formatTime(item.suggested_start_time)}–${formatTime(item.suggested_end_time)}`;
+    elements.suggestionLocation.textContent = item.suggested_location || "No location suggested";
+    elements.suggestionNote.textContent = item.response_note || "";
+  }
+
+  renderDetailActions(item);
+  elements.detailModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+function renderDetailActions(item) {
+  elements.detailActions.replaceChildren();
+  if (!item) return;
+  const isCreator = item.created_by === state.user.id;
+  const isInvitee = item.invited_user_id === state.user.id;
+
+  if (isCreator) {
+    if (item.item_type === "plan" && item.status === "changes_suggested" && item.suggested_date) {
+      elements.detailActions.append(actionButton("Use suggested changes", "primary-button", () => applySuggestion(item)));
+    }
+    if (item.item_type === "plan" && item.status === "accepted") {
+      elements.detailActions.append(actionButton("Confirm plan", "primary-button", () => confirmPlan(item)));
+    }
+    elements.detailActions.append(actionButton("Edit", "secondary-button", () => {
+      closeDetail();
+      openEditor({ itemId: item.id });
+    }));
+  }
+
+  if (item.item_type === "plan" && isInvitee && item.status === "pending") {
+    elements.detailActions.append(
+      actionButton("Decline", "danger-button", () => respondToInvitation(item, "declined")),
+      actionButton("Suggest changes", "secondary-button", () => showSuggestionForm(item)),
+      actionButton("Accept", "primary-button", () => respondToInvitation(item, "accepted"))
+    );
+  }
+}
+
+function actionButton(label, className, handler) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = className;
+  button.textContent = label;
+  button.addEventListener("click", handler);
+  return button;
+}
+
+function showSuggestionForm(item) {
+  elements.suggestedDate.value = item.event_date;
+  elements.suggestedStartTime.value = normaliseTime(item.start_time);
+  elements.suggestedEndTime.value = normaliseTime(item.end_time);
+  elements.suggestedLocationInput.value = item.location || "";
+  elements.responseNote.value = "";
+  elements.suggestionForm.classList.remove("hidden");
+  elements.detailActions.replaceChildren();
+}
+
+async function submitSuggestion(event) {
+  event.preventDefault();
+  const item = getDetailItem();
+  if (!item) return;
+  if (timeToMinutes(elements.suggestedEndTime.value) <= timeToMinutes(elements.suggestedStartTime.value)) {
+    elements.detailMessage.textContent = "Choose an end time after the start time.";
+    return;
+  }
+  await respondToInvitation(item, "changes_suggested", {
+    p_note: elements.responseNote.value.trim(),
+    p_suggested_date: elements.suggestedDate.value,
+    p_suggested_start_time: elements.suggestedStartTime.value,
+    p_suggested_end_time: elements.suggestedEndTime.value,
+    p_suggested_location: elements.suggestedLocationInput.value.trim()
+  });
+}
+
+async function respondToInvitation(item, status, extras = {}) {
+  elements.detailMessage.textContent = "Saving response...";
+  const { error } = await supabase.rpc("respond_to_calendar_invitation", {
+    p_item_id: item.id,
+    p_status: status,
+    p_note: extras.p_note || "",
+    p_suggested_date: extras.p_suggested_date || null,
+    p_suggested_start_time: extras.p_suggested_start_time || null,
+    p_suggested_end_time: extras.p_suggested_end_time || null,
+    p_suggested_location: extras.p_suggested_location || ""
+  });
+  if (error) {
+    elements.detailMessage.textContent = "Your response could not be saved.";
+    return;
+  }
+  await loadItems();
+  showToast(status === "accepted" ? "Invitation accepted." : status === "declined" ? "Invitation declined." : "Suggested changes sent.");
+}
+
+async function confirmPlan(item) {
+  const { error } = await supabase.from("calendar_items").update({
+    status: "confirmed",
+    last_action_by: state.user.id
+  }).eq("id", item.id);
+  if (error) return elements.detailMessage.textContent = "The plan could not be confirmed.";
+  await loadItems();
+  showToast("Plan confirmed.");
+}
+
+async function applySuggestion(item) {
+  const { error } = await supabase.from("calendar_items").update({
+    event_date: item.suggested_date,
+    start_time: normaliseTime(item.suggested_start_time),
+    end_time: normaliseTime(item.suggested_end_time),
+    location: item.suggested_location || item.location || "",
+    status: "pending",
+    response_note: "",
+    suggested_date: null,
+    suggested_start_time: null,
+    suggested_end_time: null,
+    suggested_location: "",
+    responded_at: null,
+    last_action_by: state.user.id
+  }).eq("id", item.id);
+  if (error) return elements.detailMessage.textContent = "The suggested changes could not be applied.";
+  await loadItems();
+  showToast(`Updated invitation sent back to ${displayName(state.otherProfile)}.`);
+}
+
+function closeDetail() {
+  elements.detailModal.classList.add("hidden");
+  elements.suggestionForm.classList.add("hidden");
+  state.detailId = null;
+  syncBodyModalState();
+}
+
+function getDetailItem() {
+  return state.items.find(item => item.id === state.detailId) || null;
+}
+
+function renderNotifications() {
+  const unread = state.notifications.filter(item => !item.is_read).length;
+  elements.notificationBadge.textContent = String(unread);
+  elements.notificationBadge.classList.toggle("hidden", unread === 0);
+  elements.notificationsList.replaceChildren();
+
+  if (!state.notifications.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "No notifications yet.";
+    elements.notificationsList.append(empty);
+    return;
+  }
+
+  state.notifications.forEach(notification => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `notification-item ${notification.is_read ? "" : "unread"}`;
+    const stateDot = document.createElement("i");
+    stateDot.className = "notification-state";
+    const copy = document.createElement("span");
+    copy.className = "notification-copy";
+    const title = document.createElement("strong");
+    title.textContent = notification.title;
+    const meta = document.createElement("span");
+    meta.textContent = `${notification.body} · ${relativeTime(notification.created_at)}`;
+    copy.append(title, meta);
+    button.append(stateDot, copy);
+    button.addEventListener("click", () => openNotification(notification));
+    elements.notificationsList.append(button);
+  });
+}
+
+async function openNotification(notification) {
+  if (!notification.is_read) {
+    await supabase.from("calendar_notifications").update({ is_read: true, read_at: new Date().toISOString() }).eq("id", notification.id);
+    await loadNotifications();
+  }
+  elements.notificationPanel.classList.add("hidden");
+  const item = state.items.find(entry => entry.id === notification.calendar_item_id);
+  if (item) openDetail(item.id);
+}
+
+async function markAllNotificationsRead() {
+  const unreadIds = state.notifications.filter(item => !item.is_read).map(item => item.id);
+  if (!unreadIds.length) return;
+  const { error } = await supabase.from("calendar_notifications").update({
+    is_read: true,
+    read_at: new Date().toISOString()
+  }).in("id", unreadIds);
+  if (!error) await loadNotifications();
+}
 
 function buildTimeOptions() {
+  const selects = [elements.startTime, elements.endTime, elements.suggestedStartTime, elements.suggestedEndTime];
+  selects.forEach(select => {
+    select.replaceChildren();
+    for (let minutes = 0; minutes < 1440; minutes += 30) {
+      const option = document.createElement("option");
+      option.value = minutesToTime(minutes);
+      option.textContent = formatMinutes(minutes);
+      select.append(option);
+    }
+    const finalOption = document.createElement("option");
+    finalOption.value = "23:59";
+    finalOption.textContent = "11:59 PM";
+    select.append(finalOption);
+  });
+}
 
-  startTimeSelect.innerHTML =
-    "";
+function syncAllDayFields() {
+  const allDay = elements.eventAllDay.checked;
+  elements.timeFields.classList.toggle("hidden", allDay);
+  elements.startTime.required = !allDay;
+  elements.endTime.required = !allDay;
+}
 
+function updateScheduleTitleField() {
+  const custom = elements.scheduleType.value === "other";
+  elements.scheduleTitleField.classList.toggle("hidden", !custom);
+  elements.scheduleTitle.required = custom;
+}
 
-  endTimeSelect.innerHTML =
-    "";
+function updateCustomTitleField() {
+  const custom = elements.templateSelect.value === "custom";
+  elements.customTitleField.classList.toggle("hidden", !custom);
+  elements.customEventTitle.required = custom;
+}
 
+function applyTemplateDuration() {
+  const template = templates[elements.templateSelect.value];
+  if (!template || elements.eventAllDay.checked) return;
+  const end = Math.min(timeToMinutes(elements.startTime.value) + template.duration, 1439);
+  elements.endTime.value = minutesToTime(end);
+}
 
-  for (
-    let index = 0;
-    index < 48;
-    index += 1
-  ) {
-
-    const time =
-      indexToTime(
-        index
-      );
-
-
-    startTimeSelect.add(
-
-      new Option(
-        time,
-        time
-      )
-
-    );
-
+function setDefaultRepeatDay() {
+  if (!elements.eventDate.value) return;
+  const date = parseISODate(elements.eventDate.value);
+  const weekday = ((date.getDay() + 6) % 7) + 1;
+  $$(".weekday-pills input").forEach(input => { input.checked = Number(input.value) === weekday; });
+  if (!elements.repeatEndDate.value || elements.repeatEndDate.value < elements.eventDate.value) {
+    const end = new Date(date);
+    end.setMonth(end.getMonth() + 1);
+    elements.repeatEndDate.value = toISODate(end);
   }
+}
 
+function kindForItem(item) {
+  if (item.item_type === "plan") return "together";
+  return state.profiles.get(item.created_by)?.role === "owner" ? "cj" : "aleckz";
+}
 
-  for (
-    let index = 1;
-    index <= 48;
-    index += 1
-  ) {
+function applyKindColours(element, item) {
+  const kind = kindForItem(item);
+  const palette = kind === "cj"
+    ? ["var(--cj)", "var(--cj-soft)", "var(--cj-dark)"]
+    : kind === "aleckz"
+      ? ["var(--aleckz)", "var(--aleckz-soft)", "var(--aleckz-dark)"]
+      : ["var(--together)", "var(--together-soft)", "var(--together-dark)"];
+  element.style.borderColor = palette[0];
+  element.style.background = palette[1];
+  element.style.color = palette[2];
+}
 
-    const time =
-      indexToTime(
-        index
-      );
+function canEditItem(item) {
+  return Boolean(state.user && item.created_by === state.user.id);
+}
 
+function displayName(profile) {
+  if (!profile) return "your person";
+  const value = profile.display_name || (profile.role === "owner" ? "CJ" : "Aleckz");
+  if (value.toLowerCase() === "cj") return "CJ";
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
 
-    endTimeSelect.add(
+function setSyncStatus(text, syncing = false) {
+  elements.syncStatus.textContent = `● ${text}`;
+  elements.syncStatus.classList.toggle("syncing", syncing);
+}
 
-      new Option(
-        time,
-        time
-      )
+function setCalendarMessage(text, error = false) {
+  elements.calendarMessage.textContent = text;
+  elements.calendarMessage.classList.toggle("error", error);
+}
 
-    );
+function showToast(message) {
+  clearTimeout(state.toastTimer);
+  elements.toast.textContent = message;
+  elements.toast.classList.remove("hidden");
+  state.toastTimer = setTimeout(() => elements.toast.classList.add("hidden"), 3200);
+}
 
+function closeAllModals() {
+  elements.dayModal.classList.add("hidden");
+  elements.eventModal.classList.add("hidden");
+  elements.detailModal.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+}
+
+function syncBodyModalState() {
+  const anyOpen = [elements.dayModal, elements.eventModal, elements.detailModal]
+    .some(modal => !modal.classList.contains("hidden"));
+  document.body.classList.toggle("modal-open", anyOpen);
+}
+
+function normaliseTime(value) {
+  return String(value || "00:00").slice(0, 5);
+}
+
+function timeToMinutes(value) {
+  const [hours, minutes] = normaliseTime(value).split(":").map(Number);
+  return (hours * 60) + minutes;
+}
+
+function minutesToTime(minutes) {
+  const safe = Math.max(0, Math.min(1439, minutes));
+  return `${String(Math.floor(safe / 60)).padStart(2, "0")}:${String(safe % 60).padStart(2, "0")}`;
+}
+
+function formatMinutes(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  const suffix = hours >= 12 ? "PM" : "AM";
+  const displayHour = hours % 12 || 12;
+  return `${displayHour}:${String(mins).padStart(2, "0")} ${suffix}`;
+}
+
+function formatTime(value) {
+  return formatMinutes(timeToMinutes(value));
+}
+
+function formatTimeRange(item) {
+  return `${formatTime(item.start_time)}–${formatTime(item.end_time)}`;
+}
+
+function toISODate(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function parseISODate(value) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function formatLongDate(value) {
+  return parseISODate(value).toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+}
+
+function shortStatus(status) {
+  return ({ pending: "pending", changes_suggested: "change", accepted: "accepted", declined: "declined", confirmed: "confirmed" })[status] || status;
+}
+
+function humanStatus(status) {
+  return ({ pending: "Pending response", changes_suggested: "Changes suggested", accepted: "Accepted", declined: "Declined", confirmed: "Confirmed", cancelled: "Cancelled" })[status] || status;
+}
+
+function relativeTime(value) {
+  const seconds = Math.round((new Date(value).getTime() - Date.now()) / 1000);
+  const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  const units = [
+    [31536000, "year"],
+    [2592000, "month"],
+    [86400, "day"],
+    [3600, "hour"],
+    [60, "minute"]
+  ];
+  for (const [amount, unit] of units) {
+    if (Math.abs(seconds) >= amount) return formatter.format(Math.round(seconds / amount), unit);
   }
-
+  return "just now";
 }
 
-
-
-/* ========================================
-   ITEMS FOR DATE
-======================================== */
-
-function getItemsForDate(
-  dateKey
-) {
-
-  return state.items
-
-    .filter(
-      item =>
-        item.date ===
-        dateKey
-    )
-
-    .sort(
-      (
-        first,
-        second
-      ) => {
-
-        return (
-
-          timeToMinutes(
-            first.start
-          )
-
-          -
-
-          timeToMinutes(
-            second.start
-          )
-
-        );
-
-      }
-    );
-
-}
-
-
-
-/* ========================================
-   PRIVATE MEMBER NAME
-======================================== */
-
-function getMemberName(
-  userId
-) {
-
-  return (
-
-    state.members
-      .get(
-        userId
-      )
-      ?.display_name
-
-    ||
-
-    "member"
-
-  );
-
-}
-
-
-
-/* ========================================
-   FRIEND NAME
-======================================== */
-
-function getFriendName(
-  friendId
-) {
-
-  return (
-
-    state.friends
-      .get(
-        friendId
-      )
-      ?.display_name
-
-    ||
-
-    "friend"
-
-  );
-
-}
-
-
-
-/* ========================================
-   DATE HELPERS
-======================================== */
-
-function makeDateKey(
-
-  year,
-
-  zeroBasedMonth,
-
-  day
-
-) {
-
-  const month =
-    String(
-      zeroBasedMonth +
-      1
-    )
-      .padStart(
-        2,
-        "0"
-      );
-
-
-  const date =
-    String(
-      day
-    )
-      .padStart(
-        2,
-        "0"
-      );
-
-
-  return (
-    `${year}-${month}-${date}`
-  );
-
-}
-
-
-
-function toDateKey(
-  date
-) {
-
-  return makeDateKey(
-
-    date.getFullYear(),
-
-    date.getMonth(),
-
-    date.getDate()
-
-  );
-
-}
-
-
-
-function formatDateLong(
-  dateKey
-) {
-
-  const date =
-    new Date(
-      `${dateKey}T00:00:00`
-    );
-
-
-  return new Intl
-    .DateTimeFormat(
-      "en-AU",
-      {
-
-        weekday:
-          "long",
-
-        day:
-          "numeric",
-
-        month:
-          "long",
-
-        year:
-          "numeric"
-
-      }
-    )
-    .format(
-      date
-    );
-
-}
-
-
-
-/* ========================================
-   TIME HELPERS
-======================================== */
-
-function indexToTime(
-  index
-) {
-
-  return minutesToTime(
-    index * 30
-  );
-
-}
-
-
-
-function minutesToTime(
-  totalMinutes
-) {
-
-  if (
-    totalMinutes ===
-    1440
-  ) {
-
-    return "24:00";
-
-  }
-
-
-  const hours =
-    Math.floor(
-      totalMinutes /
-      60
-    );
-
-
-  const minutes =
-    totalMinutes %
-    60;
-
-
-  return (
-
-    String(
-      hours
-    )
-      .padStart(
-        2,
-        "0"
-      )
-
-    +
-
-    ":"
-
-    +
-
-    String(
-      minutes
-    )
-      .padStart(
-        2,
-        "0"
-      )
-
-  );
-
-}
-
-
-
-function timeToMinutes(
-  time
-) {
-
-  if (
-    time ===
-    "24:00"
-  ) {
-
-    return 1440;
-
-  }
-
-
-  const [
-    hours,
-    minutes
-  ] =
-    normaliseDatabaseTime(
-      time
-    )
-      .split(":")
-      .map(Number);
-
-
-  return (
-    hours * 60 +
-    minutes
-  );
-
-}
-
-
-
-function normaliseDatabaseTime(
-  time
-) {
-
-  if (
-    !time
-  ) {
-
-    return "00:00";
-
-  }
-
-
-  return String(
-    time
-  )
-    .slice(
-      0,
-      5
-    );
-
-}
-
-
-
-/* ========================================
-   ERROR
-======================================== */
-
-function showFormError(
-  message
-) {
-
-  formMessage.textContent =
-    message;
-
-
-  formMessage.classList.remove(
-    "success"
-  );
-
-}
-
-
-
-/* ========================================
-   SYNC STATUS
-======================================== */
-
-function setSyncStatus(
-  text,
-  syncing
-) {
-
-  syncStatus.textContent =
-    text;
-
-
-  syncStatus.classList.toggle(
-    "syncing",
-    syncing
-  );
-
-}
-
-
-
-/* ========================================
-   BODY MODAL STATE
-======================================== */
-
-function updateBodyModalState() {
-
-  const anythingOpen =
-
-    !dayModal
-      .classList
-      .contains(
-        "hidden"
-      )
-
-    ||
-
-    !eventModal
-      .classList
-      .contains(
-        "hidden"
-      )
-
-    ||
-
-    !friendProposalModal
-      .classList
-      .contains(
-        "hidden"
-      );
-
-
-  document.body.classList.toggle(
-    "modal-open",
-    anythingOpen
-  );
-
+function friendlyDatabaseError(error) {
+  const message = String(error?.message || "").toLowerCase();
+  if (message.includes("row-level security")) return "You can only change calendar entries you created.";
+  if (message.includes("calendar_item_time_check")) return "The end time must be after the start time.";
+  return "The calendar could not save this entry. Please try again.";
 }

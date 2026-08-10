@@ -1,1013 +1,317 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-
-  <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f7f4f1" />
   <title>Our Shared Calendar</title>
-
-  <link
-    rel="stylesheet"
-    href="style.css"
-  />
-
-  <script
-    type="module"
-    src="script.js"
-  ></script>
-
-  <style>
-    .all-day-row {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-    }
-
-    .all-day-row input[type="checkbox"] {
-      width: auto !important;
-      min-width: 18px;
-      height: 18px;
-      margin: 0;
-      accent-color: currentColor;
-    }
-  </style>
-
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="script.js"></script>
 </head>
-
-
 <body>
+  <main id="authView" class="auth-view">
+    <section class="login-card" aria-labelledby="loginHeading">
+      <div class="brand-mark" aria-hidden="true">♡</div>
+      <p class="eyebrow">our time together</p>
+      <h1 id="loginHeading">shared calendar</h1>
+      <p class="login-description">A private place for CJ and Aleckz to share schedules and make plans.</p>
 
-
-  <!-- =====================================
-       LOGIN
-  ====================================== -->
-
-  <main
-    id="authView"
-    class="auth-view"
-  >
-
-    <section class="login-card">
-
-      <div class="login-heading">
-
-        <p class="eyebrow">
-          our time together
-        </p>
-
-        <h1>
-          shared calendar ♡
-        </h1>
-
-        <p class="login-description">
-          sign in to see our calendar
-        </p>
-
-      </div>
-
-
-      <form
-        id="loginForm"
-        class="login-form"
-      >
-
-        <label>
-
-          Email
-
-          <input
-            id="loginEmail"
-            type="email"
-            autocomplete="email"
-            placeholder="your email"
-            required
-          />
-
+      <form id="loginForm" class="stack-form">
+        <label>Email
+          <input id="loginEmail" type="email" autocomplete="email" placeholder="your email" required />
         </label>
-
-
-        <label>
-
-          Password
-
-          <input
-            id="loginPassword"
-            type="password"
-            autocomplete="current-password"
-            placeholder="••••••••"
-            required
-          />
-
+        <label>Password
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••" required />
         </label>
-
-
-        <p
-          id="loginMessage"
-          class="form-message"
-          aria-live="polite"
-        ></p>
-
-
-        <button
-          id="loginButton"
-          class="primary-button full-button"
-          type="submit"
-        >
-          Sign in
-        </button>
-
+        <p id="loginMessage" class="form-message" aria-live="polite"></p>
+        <button id="loginButton" class="primary-button full-button" type="submit">Sign in</button>
       </form>
-
     </section>
-
   </main>
 
-
-
-  <!-- =====================================
-       MAIN CALENDAR
-  ====================================== -->
-
-  <main
-    id="appView"
-    class="app-shell hidden"
-  >
-
-
-    <!-- ACCOUNT BAR -->
-
+  <main id="appView" class="app-shell hidden">
     <header class="top-bar">
-
       <div class="account-info">
-
-        <div class="avatar">
-          ♡
-        </div>
-
+        <div id="avatar" class="avatar" aria-hidden="true">C</div>
         <div>
-
-          <strong id="currentUserName">
-            user
-          </strong>
-
-          <span id="currentUserRole">
-            member
-          </span>
-
+          <strong id="currentUserName">CJ</strong>
+          <span id="currentUserRole">calendar member</span>
         </div>
-
       </div>
-
 
       <div class="account-actions">
-
-        <span
-          id="syncStatus"
-          class="sync-status"
-        >
-          ● synced
-        </span>
-
-
-        <button
-          id="logoutButton"
-          class="secondary-button"
-          type="button"
-        >
-          Log out
-        </button>
-
-      </div>
-
-    </header>
-
-
-
-    <!-- MONTH HEADER -->
-
-    <header class="calendar-header">
-
-      <div>
-
-        <p class="eyebrow">
-          our time together
-        </p>
-
-        <h1 id="monthLabel">
-          August 2026
-        </h1>
-
-      </div>
-
-
-      <div class="month-controls">
-
-        <button
-          id="previousMonth"
-          class="icon-button"
-          type="button"
-          aria-label="Previous month"
-        >
-          ←
-        </button>
-
-
-        <button
-          id="todayButton"
-          class="secondary-button"
-          type="button"
-        >
-          Today
-        </button>
-
-
-        <button
-          id="nextMonth"
-          class="icon-button"
-          type="button"
-          aria-label="Next month"
-        >
-          →
-        </button>
-
-      </div>
-
-    </header>
-
-
-
-    <!-- MONTH GRID -->
-
-    <section class="calendar-wrapper">
-
-      <div class="calendar">
-
-        <div class="weekdays">
-
-          <div>
-            <span class="weekday-full">
-              Monday
-            </span>
-
-            <span class="weekday-short">
-              M
-            </span>
-          </div>
-
-
-          <div>
-            <span class="weekday-full">
-              Tuesday
-            </span>
-
-            <span class="weekday-short">
-              T
-            </span>
-          </div>
-
-
-          <div>
-            <span class="weekday-full">
-              Wednesday
-            </span>
-
-            <span class="weekday-short">
-              W
-            </span>
-          </div>
-
-
-          <div>
-            <span class="weekday-full">
-              Thursday
-            </span>
-
-            <span class="weekday-short">
-              T
-            </span>
-          </div>
-
-
-          <div>
-            <span class="weekday-full">
-              Friday
-            </span>
-
-            <span class="weekday-short">
-              F
-            </span>
-          </div>
-
-
-          <div>
-            <span class="weekday-full">
-              Saturday
-            </span>
-
-            <span class="weekday-short">
-              S
-            </span>
-          </div>
-
-
-          <div>
-            <span class="weekday-full">
-              Sunday
-            </span>
-
-            <span class="weekday-short">
-              S
-            </span>
-          </div>
-
+        <span id="syncStatus" class="sync-status">● connecting</span>
+        <div class="notification-wrap">
+          <button id="notificationButton" class="icon-button notification-button" type="button" aria-label="Notifications" aria-expanded="false">
+            <span aria-hidden="true">♢</span>
+            <span id="notificationBadge" class="notification-badge hidden">0</span>
+          </button>
+          <section id="notificationPanel" class="notification-panel hidden" aria-label="Notifications">
+            <header>
+              <div>
+                <p class="eyebrow">updates</p>
+                <h2>Notifications</h2>
+              </div>
+              <button id="markAllReadButton" class="text-button" type="button">Mark all read</button>
+            </header>
+            <div id="notificationsList" class="notifications-list"></div>
+          </section>
         </div>
-
-
-        <div
-          id="calendarDays"
-          class="calendar-days"
-        ></div>
-
+        <button id="logoutButton" class="secondary-button" type="button">Log out</button>
       </div>
+    </header>
 
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">our time together</p>
+        <h1 id="monthLabel">August 2026</h1>
+        <p class="page-description">Add your own commitments, see when you are both free, then invite each other.</p>
+      </div>
+      <div class="main-actions">
+        <button id="updateScheduleButton" class="secondary-button" type="button">Update my schedule</button>
+        <button id="invitePartnerButton" class="primary-button" type="button">Invite Aleckz</button>
+      </div>
     </section>
 
-
-    <p class="page-note">
-      select a date to view the day
-    </p>
-
-  </main>
-
-
-
-  <!-- =====================================
-       DAILY CALENDAR
-  ====================================== -->
-
-  <div
-    id="dayModal"
-    class="modal hidden"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="dayTitle"
-  >
-
-    <div class="modal-panel day-panel">
-
-      <header class="modal-header sticky-header">
-
-        <div>
-
-          <p class="eyebrow">
-            daily schedule
-          </p>
-
-          <h2 id="dayTitle">
-            Monday, 3 August 2026
-          </h2>
-
+    <section class="calendar-card">
+      <div class="calendar-toolbar">
+        <div id="calendarFilters" class="filter-tabs" aria-label="Calendar filters">
+          <button class="filter-button active" type="button" data-filter="all">All</button>
+          <button class="filter-button" type="button" data-filter="cj"><i class="filter-dot cj-dot"></i>CJ</button>
+          <button class="filter-button" type="button" data-filter="aleckz"><i class="filter-dot aleckz-dot"></i>Aleckz</button>
+          <button class="filter-button" type="button" data-filter="together"><i class="filter-dot together-dot"></i>Together</button>
         </div>
 
-
-        <div class="header-actions">
-
-          <button
-            id="addScheduleButton"
-            class="secondary-button hidden"
-            type="button"
-          >
-            Add my schedule
-          </button>
-
-
-          <button
-            id="closeDayModal"
-            class="icon-button"
-            type="button"
-            aria-label="Close daily schedule"
-          >
-            ×
-          </button>
-
+        <div class="month-controls">
+          <input id="monthJump" class="month-jump" type="month" aria-label="Jump to month" />
+          <button id="previousMonth" class="icon-button" type="button" aria-label="Previous month">←</button>
+          <button id="todayButton" class="secondary-button compact-button" type="button">Today</button>
+          <button id="nextMonth" class="icon-button" type="button" aria-label="Next month">→</button>
         </div>
-
-      </header>
-
-
-
-      <!-- LEGEND -->
-
-      <div class="timeline-key">
-
-        <span>
-          <i class="legend-dot work-dot"></i>
-          Work
-        </span>
-
-
-        <span>
-          <i class="legend-dot busy-dot"></i>
-          Busy
-        </span>
-
-
-        <span>
-          <i class="legend-dot plan-dot"></i>
-          Our plan
-        </span>
-
-
-        <span>
-          <i class="legend-dot friend-dot"></i>
-          Friend proposal
-        </span>
-
       </div>
 
+      <div id="copyTargets" class="copy-targets" aria-hidden="true">
+        <div class="copy-target" data-copy-direction="previous">← Copy to previous month</div>
+        <p>Drop on a date to copy</p>
+        <div class="copy-target" data-copy-direction="next">Copy to next month →</div>
+      </div>
 
+      <p id="calendarMessage" class="calendar-message" aria-live="polite"></p>
 
-      <!-- TIMELINE -->
+      <div class="calendar-scroll">
+        <div class="calendar">
+          <div class="weekdays" aria-hidden="true">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+          </div>
+          <div id="calendarDays" class="calendar-days" aria-label="Calendar month"></div>
+        </div>
+      </div>
+    </section>
 
-      <div
-        id="timeline"
-        class="timeline"
-        aria-label="Twenty-four-hour calendar"
-      ></div>
+    <section class="colour-key" aria-label="Calendar colour key">
+      <span><i class="legend-dot cj-dot"></i>CJ's schedule</span>
+      <span><i class="legend-dot aleckz-dot"></i>Aleckz's schedule</span>
+      <span><i class="legend-dot together-dot"></i>Plans together</span>
+    </section>
+  </main>
 
-    </div>
-
+  <div id="dayModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="dayTitle">
+    <section class="modal-panel day-panel">
+      <header class="modal-header sticky-header">
+        <div>
+          <p class="eyebrow">daily schedule</p>
+          <h2 id="dayTitle">Monday, 3 August 2026</h2>
+        </div>
+        <div class="header-actions">
+          <button id="dayScheduleButton" class="secondary-button" type="button">Update my schedule</button>
+          <button id="dayInviteButton" class="primary-button" type="button">Invite Aleckz</button>
+          <button id="closeDayModal" class="icon-button" type="button" aria-label="Close day">×</button>
+        </div>
+      </header>
+      <div class="timeline-key">
+        <span><i class="legend-dot cj-dot"></i>CJ</span>
+        <span><i class="legend-dot aleckz-dot"></i>Aleckz</span>
+        <span><i class="legend-dot together-dot"></i>Together</span>
+      </div>
+      <div id="allDayItems" class="all-day-items hidden"></div>
+      <div id="timeline" class="timeline" aria-label="Twenty-four-hour calendar"></div>
+    </section>
   </div>
 
-
-
-  <!-- =====================================
-       CJ / ALECKZ EVENT EDITOR
-  ====================================== -->
-
-  <div
-    id="eventModal"
-    class="modal editor-modal hidden"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="editorHeading"
-  >
-
-    <div class="modal-panel editor-panel">
-
+  <div id="eventModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="editorHeading">
+    <section class="modal-panel editor-panel">
       <header class="modal-header">
-
         <div>
-
-          <p
-            id="editorLabel"
-            class="eyebrow"
-          >
-            create a plan
-          </p>
-
-
-          <h2 id="editorHeading">
-            Add an event
-          </h2>
-
-
-          <p
-            id="editorMeta"
-            class="editor-meta"
-          ></p>
-
+          <p id="editorLabel" class="eyebrow">update my schedule</p>
+          <h2 id="editorHeading">Add schedule</h2>
+          <p id="editorMeta" class="editor-meta"></p>
         </div>
-
-
-        <button
-          id="closeEventModal"
-          class="icon-button"
-          type="button"
-          aria-label="Close event editor"
-        >
-          ×
-        </button>
-
+        <button id="closeEventModal" class="icon-button" type="button" aria-label="Close editor">×</button>
       </header>
 
+      <form id="eventForm" class="event-form">
+        <input id="itemType" type="hidden" value="schedule" />
 
-
-      <form
-        id="eventForm"
-        class="event-form"
-      >
-
-        <input
-          id="itemType"
-          type="hidden"
-          value="plan"
-        />
-
-
-        <!-- PRIVATE PLAN -->
-
-        <div id="planFields">
-
-          <label>
-
-            Template
-
-            <select id="templateSelect">
-
-              <option value="">
-                Select a template
-              </option>
-
-
-              <optgroup label="♡ together">
-
-                <option value="date-night">
-                  Date night
-                </option>
-
-                <option value="day-date">
-                  Day date
-                </option>
-
-                <option value="monthsary">
-                  Monthsary
-                </option>
-
-                <option value="anniversary">
-                  Anniversary
-                </option>
-
-              </optgroup>
-
-
-              <optgroup label="☾ wind down">
-
-                <option value="reading-night">
-                  Reading night
-                </option>
-
-                <option value="cozy-night">
-                  Cozy night
-                </option>
-
-                <option value="wind-down">
-                  Wind-down time
-                </option>
-
-                <option value="creative-night">
-                  Creative night
-                </option>
-
-                <option value="quiet-time">
-                  Quiet time
-                </option>
-
-                <option value="self-care-night">
-                  Self-care night
-                </option>
-
-                <option value="comfort-night">
-                  Comfort night
-                </option>
-
-              </optgroup>
-
-
-              <optgroup label="♢ fun">
-
-                <option value="game-night">
-                  Game night
-                </option>
-
-                <option value="friends-game-night">
-                  Game night with friends
-                </option>
-
-                <option value="movie-night">
-                  Movie night
-                </option>
-
-                <option value="eat-out">
-                  Eat out
-                </option>
-
-                <option value="hangout">
-                  Hangout
-                </option>
-
-                <option value="walk">
-                  Walk
-                </option>
-
-                <option value="try-something-new">
-                  Try something new
-                </option>
-
-              </optgroup>
-
-
-              <optgroup label="＋ other">
-
-                <option value="custom">
-                  Custom event
-                </option>
-
-              </optgroup>
-
-            </select>
-
-          </label>
-
-
-
-          <label
-            id="customTitleField"
-            class="hidden"
-          >
-
-            Event name
-
-            <input
-              id="customEventTitle"
-              type="text"
-              maxlength="80"
-              placeholder="e.g. bowling, pottery class, beach trip..."
-            />
-
-          </label>
-
-        </div>
-
-
-
-        <!-- OWNER SCHEDULE -->
-
-        <div
-          id="scheduleFields"
-          class="hidden"
-        >
-
-          <label>
-
-            Schedule type
-
+        <div id="scheduleFields" class="form-section">
+          <label>Schedule type
             <select id="scheduleType">
-
-              <option value="work">
-                Work
-              </option>
-
-              <option value="busy">
-                Busy / unavailable
-              </option>
-
+              <option value="work">Work</option>
+              <option value="uni">University</option>
+              <option value="appointment">Appointment</option>
+              <option value="busy">Busy / unavailable</option>
+              <option value="gym">Gym</option>
+              <option value="other">Other</option>
             </select>
-
           </label>
-
+          <label id="scheduleTitleField" class="hidden">Schedule name
+            <input id="scheduleTitle" type="text" maxlength="80" placeholder="e.g. study session" />
+          </label>
         </div>
 
+        <div id="planFields" class="form-section hidden">
+          <div class="invitee-card">
+            <span>Inviting</span>
+            <strong id="inviteeName">Aleckz</strong>
+          </div>
+          <label>Plan
+            <select id="templateSelect">
+              <option value="date-night">Date night</option>
+              <option value="day-date">Day date</option>
+              <option value="monthsary">Monthsary</option>
+              <option value="anniversary">Anniversary</option>
+              <option value="reading-night">Reading night</option>
+              <option value="game-night">Game night</option>
+              <option value="friends-game-night">Game night with friends</option>
+              <option value="movie-night">Movie night</option>
+              <option value="eat-out">Eat out</option>
+              <option value="karaoke">Karaoke</option>
+              <option value="ice-skating">Ice skating</option>
+              <option value="bouldering">Bouldering</option>
+              <option value="bowling">Bowling</option>
+              <option value="shopping">Shopping</option>
+              <option value="arcade">Arcade</option>
+              <option value="sports-activity">Sports / activity</option>
+              <option value="try-something-new">Try something new</option>
+              <option value="custom">Custom plan</option>
+            </select>
+          </label>
+          <label id="customTitleField" class="hidden">Plan name
+            <input id="customEventTitle" type="text" maxlength="80" placeholder="e.g. beach picnic" />
+          </label>
+        </div>
 
-
-        <label>
-
-          Select date
-
-          <span class="date-input-wrapper">
-
-            <input
-              id="eventDate"
-              type="date"
-              required
-            />
-
-          </span>
-
+        <label>Date
+          <input id="eventDate" type="date" required />
         </label>
 
-
-        <label class="all-day-row">
-          <input
-            id="eventAllDay"
-            type="checkbox"
-          />
+        <label class="checkbox-row">
+          <input id="eventAllDay" type="checkbox" />
           <span>All day</span>
         </label>
 
-
-        <div class="time-fields">
-
-          <label>
-
-            Start time
-
-            <select
-              id="startTime"
-              required
-            ></select>
-
+        <div id="timeFields" class="time-fields">
+          <label>Start time
+            <select id="startTime" required></select>
           </label>
-
-
-          <label>
-
-            End time
-
-            <select
-              id="endTime"
-              required
-            ></select>
-
+          <label>End time
+            <select id="endTime" required></select>
           </label>
-
         </div>
 
-
-
-        <label>
-
-          Add notes
-
-          <textarea
-            id="eventNotes"
-            rows="4"
-            maxlength="500"
-            placeholder="add any details..."
-          ></textarea>
-
+        <label>Location <span class="optional-label">optional</span>
+          <input id="eventLocation" type="text" maxlength="300" placeholder="e.g. Gangnam Carousel" />
         </label>
 
-
-
-        <p
-          id="formMessage"
-          class="form-message"
-          aria-live="polite"
-        ></p>
-
-
-
-        <div class="form-actions">
-
-          <button
-            id="deleteEvent"
-            class="danger-button hidden"
-            type="button"
-          >
-            Delete
-          </button>
-
-
-          <div class="right-actions">
-
-            <button
-              id="cancelEditor"
-              class="secondary-button"
-              type="button"
-            >
-              Cancel
-            </button>
-
-
-            <button
-              id="saveEventButton"
-              class="primary-button"
-              type="submit"
-            >
-              Add event
-            </button>
-
+        <div id="repeatSection" class="repeat-section">
+          <label class="checkbox-row">
+            <input id="repeatSchedule" type="checkbox" />
+            <span>Repeat this schedule</span>
+          </label>
+          <div id="repeatOptions" class="repeat-options hidden">
+            <label>Repeat until
+              <input id="repeatEndDate" type="date" />
+            </label>
+            <fieldset>
+              <legend>Repeat on</legend>
+              <div class="weekday-pills">
+                <label><input type="checkbox" value="1" />Mon</label>
+                <label><input type="checkbox" value="2" />Tue</label>
+                <label><input type="checkbox" value="3" />Wed</label>
+                <label><input type="checkbox" value="4" />Thu</label>
+                <label><input type="checkbox" value="5" />Fri</label>
+                <label><input type="checkbox" value="6" />Sat</label>
+                <label><input type="checkbox" value="7" />Sun</label>
+              </div>
+            </fieldset>
           </div>
-
         </div>
 
+        <label>Notes <span class="optional-label">optional</span>
+          <textarea id="eventNotes" rows="4" maxlength="1000" placeholder="Anything you both should know..."></textarea>
+        </label>
+
+        <p id="formMessage" class="form-message" aria-live="polite"></p>
+        <div class="form-actions">
+          <button id="deleteEvent" class="danger-button hidden" type="button">Delete</button>
+          <span class="form-spacer"></span>
+          <button id="cancelEditor" class="secondary-button" type="button">Cancel</button>
+          <button id="saveEventButton" class="primary-button" type="submit">Save schedule</button>
+        </div>
       </form>
-
-    </div>
-
+    </section>
   </div>
 
-
-
-  <!-- =====================================
-       FRIEND PROPOSAL DETAILS
-  ====================================== -->
-
-  <div
-    id="friendProposalModal"
-    class="modal proposal-modal hidden"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="friendProposalTitle"
-  >
-
-    <div class="modal-panel proposal-panel">
-
+  <div id="detailModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <section class="modal-panel detail-panel">
       <header class="modal-header">
-
         <div>
-
-          <p class="eyebrow">
-            friend proposal
-          </p>
-
-          <h2 id="friendProposalTitle">
-            Hangout
-          </h2>
-
+          <p id="detailLabel" class="eyebrow">plan together</p>
+          <h2 id="detailTitle">Date night</h2>
+          <span id="detailStatus" class="status-pill">Pending</span>
         </div>
-
-
-        <button
-          id="closeFriendProposalModal"
-          class="icon-button"
-          type="button"
-          aria-label="Close friend proposal"
-        >
-          ×
-        </button>
-
+        <button id="closeDetailModal" class="icon-button" type="button" aria-label="Close details">×</button>
       </header>
 
+      <div class="detail-content">
+        <dl class="detail-list">
+          <div><dt>From</dt><dd id="detailCreator">CJ</dd></div>
+          <div><dt>Date</dt><dd id="detailDate">Monday, 3 August</dd></div>
+          <div><dt>Time</dt><dd id="detailTime">6:00 PM–9:00 PM</dd></div>
+          <div id="detailLocationRow"><dt>Location</dt><dd id="detailLocation"></dd></div>
+          <div id="detailNotesRow"><dt>Notes</dt><dd id="detailNotes"></dd></div>
+        </dl>
 
-      <div class="proposal-content">
+        <section id="suggestionSummary" class="suggestion-summary hidden">
+          <p class="eyebrow">suggested change</p>
+          <strong id="suggestionWhen"></strong>
+          <span id="suggestionLocation"></span>
+          <p id="suggestionNote"></p>
+        </section>
 
-        <div class="proposal-row">
+        <form id="suggestionForm" class="suggestion-form hidden">
+          <div class="time-fields three-fields">
+            <label>Date<input id="suggestedDate" type="date" /></label>
+            <label>Start<select id="suggestedStartTime"></select></label>
+            <label>End<select id="suggestedEndTime"></select></label>
+          </div>
+          <label>Location <span class="optional-label">optional</span>
+            <input id="suggestedLocationInput" type="text" maxlength="300" />
+          </label>
+          <label>Message <span class="optional-label">optional</span>
+            <textarea id="responseNote" rows="3" maxlength="1000" placeholder="What would work better?"></textarea>
+          </label>
+          <div class="form-actions">
+            <button id="cancelSuggestionButton" class="secondary-button" type="button">Cancel</button>
+            <button class="primary-button" type="submit">Send suggestion</button>
+          </div>
+        </form>
 
-          <span class="proposal-label">
-            Proposed by
-          </span>
-
-          <strong id="friendProposalCreator">
-            mark
-          </strong>
-
-        </div>
-
-
-        <div class="proposal-row">
-
-          <span class="proposal-label">
-            Date
-          </span>
-
-          <strong id="friendProposalDate">
-          </strong>
-
-        </div>
-
-
-        <div class="proposal-row">
-
-          <span class="proposal-label">
-            Time
-          </span>
-
-          <strong id="friendProposalTime">
-          </strong>
-
-        </div>
-
-
-        <div class="proposal-notes">
-
-          <span class="proposal-label">
-            Notes
-          </span>
-
-          <p id="friendProposalNotes">
-          </p>
-
-        </div>
-
+        <p id="detailMessage" class="form-message" aria-live="polite"></p>
+        <div id="detailActions" class="detail-actions"></div>
       </div>
-
-    </div>
-
+    </section>
   </div>
 
-
-  <script>
-    window.addEventListener("load", () => {
-      const eventForm = document.querySelector("#eventForm");
-      const eventModal = document.querySelector("#eventModal");
-      const allDayInput = document.querySelector("#eventAllDay");
-      const timeFields = document.querySelector("#eventForm .time-fields");
-      const startTime = document.querySelector("#startTime");
-      const endTime = document.querySelector("#endTime");
-      const templateSelect = document.querySelector("#templateSelect");
-
-      if (!eventForm || !eventModal || !allDayInput || !timeFields || !startTime || !endTime) {
-        return;
-      }
-
-      let previousStart = "09:00";
-      let previousEnd = "10:00";
-
-      const isAllDayRange = () =>
-        startTime.value === "00:00" && endTime.value === "24:00";
-
-      const forceAllDayRange = () => {
-        startTime.value = "00:00";
-        endTime.value = "24:00";
-      };
-
-      const syncAllDayFields = ({ opening = false } = {}) => {
-        if (opening) {
-          allDayInput.checked = isAllDayRange();
-        }
-
-        const allDay = allDayInput.checked;
-
-        if (allDay) {
-          if (!isAllDayRange()) {
-            previousStart = startTime.value || "09:00";
-            previousEnd = endTime.value || "10:00";
-          }
-
-          forceAllDayRange();
-        } else if (!opening && isAllDayRange()) {
-          startTime.value = previousStart;
-          endTime.value = previousEnd;
-        }
-
-        timeFields.classList.toggle("hidden", allDay);
-        startTime.required = !allDay;
-        endTime.required = !allDay;
-      };
-
-      allDayInput.addEventListener("change", () => syncAllDayFields());
-
-      templateSelect?.addEventListener("change", () => {
-        if (allDayInput.checked) {
-          setTimeout(forceAllDayRange, 0);
-        }
-      });
-
-      eventForm.addEventListener(
-        "submit",
-        () => {
-          if (allDayInput.checked) {
-            forceAllDayRange();
-          }
-        },
-        true
-      );
-
-      const modalObserver = new MutationObserver(() => {
-        if (!eventModal.classList.contains("hidden")) {
-          setTimeout(() => syncAllDayFields({ opening: true }), 0);
-        }
-      });
-
-      modalObserver.observe(eventModal, {
-        attributes: true,
-        attributeFilter: ["class"]
-      });
-
-      const replaceAllDayLabels = () => {
-        document.querySelectorAll(".summary-entry").forEach(entry => {
-          if (entry.textContent.startsWith("00:00 ")) {
-            entry.textContent = entry.textContent.replace(/^00:00 /, "All day ");
-          }
-        });
-
-        document.querySelectorAll(".event-block span, #friendProposalTime").forEach(element => {
-          if (element.textContent.includes("00:00–24:00")) {
-            element.textContent = element.textContent.replace("00:00–24:00", "All day");
-          }
-        });
-      };
-
-      let labelUpdateQueued = false;
-      const queueLabelUpdate = () => {
-        if (labelUpdateQueued) return;
-        labelUpdateQueued = true;
-        queueMicrotask(() => {
-          labelUpdateQueued = false;
-          replaceAllDayLabels();
-        });
-      };
-
-      new MutationObserver(queueLabelUpdate).observe(document.body, {
-        childList: true,
-        subtree: true
-      });
-
-      replaceAllDayLabels();
-    });
-  </script>
-
-
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 </body>
-
 </html>
