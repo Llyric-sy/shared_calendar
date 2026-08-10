@@ -92,6 +92,10 @@ h1, h2, h3, p { margin-top: 0; }
 
 .login-card h1 { margin-bottom: 10px; font-size: 2.15rem; letter-spacing: -.04em; }
 .login-description { margin: 0 auto 28px; color: var(--muted); line-height: 1.6; }
+.auth-link-row { display: flex; justify-content: flex-end; margin-top: -10px; }
+.auth-link { padding: 2px 0; font-size: .82rem; }
+.auth-link:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.password-rules { margin: -8px 0 0; color: var(--muted); font-size: .74rem; text-align: left; }
 
 .stack-form, .event-form, .suggestion-form { display: grid; gap: 17px; text-align: left; }
 .stack-form label, .event-form label, .suggestion-form label {

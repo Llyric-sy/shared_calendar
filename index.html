@@ -14,7 +14,7 @@
       <div class="brand-mark" aria-hidden="true">♡</div>
       <p class="eyebrow">our time together</p>
       <h1 id="loginHeading">shared calendar</h1>
-      <p class="login-description">A private place for CJ and Aleckz to share schedules and make plans.</p>
+      <p id="authDescription" class="login-description">A private place for CJ and Aleckz to share schedules and make plans.</p>
 
       <form id="loginForm" class="stack-form">
         <label>Email
@@ -23,8 +23,32 @@
         <label>Password
           <input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••" required />
         </label>
+        <div class="auth-link-row">
+          <button id="forgotPasswordButton" class="text-button auth-link" type="button">Forgot password?</button>
+        </div>
         <p id="loginMessage" class="form-message" aria-live="polite"></p>
         <button id="loginButton" class="primary-button full-button" type="submit">Sign in</button>
+      </form>
+
+      <form id="recoveryRequestForm" class="stack-form hidden">
+        <label>Login email
+          <input id="recoveryEmail" type="email" autocomplete="email" placeholder="your email" required />
+        </label>
+        <p id="recoveryRequestMessage" class="form-message" aria-live="polite"></p>
+        <button id="sendRecoveryButton" class="primary-button full-button" type="submit">Send reset email</button>
+        <button id="backToLoginButton" class="secondary-button full-button" type="button">Back to sign in</button>
+      </form>
+
+      <form id="passwordUpdateForm" class="stack-form hidden">
+        <label>New password
+          <input id="newPassword" type="password" autocomplete="new-password" minlength="8" placeholder="at least 8 characters" required />
+        </label>
+        <label>Confirm new password
+          <input id="confirmNewPassword" type="password" autocomplete="new-password" minlength="8" placeholder="enter it again" required />
+        </label>
+        <p class="password-rules">Use at least 8 characters.</p>
+        <p id="passwordUpdateMessage" class="form-message" aria-live="polite"></p>
+        <button id="saveNewPasswordButton" class="primary-button full-button" type="submit">Save new password</button>
       </form>
     </section>
   </main>

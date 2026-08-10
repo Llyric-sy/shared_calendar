@@ -49,7 +49,9 @@ const state = {
   otherProfile: null,
   calendarChannel: null,
   notificationChannel: null,
-  toastTimer: null
+  toastTimer: null,
+  recoveryMode: false,
+  authNotice: ""
 };
 
 const $ = selector => document.querySelector(selector);
@@ -58,11 +60,24 @@ const $$ = selector => [...document.querySelectorAll(selector)];
 const elements = {
   authView: $("#authView"),
   appView: $("#appView"),
+  loginHeading: $("#loginHeading"),
+  authDescription: $("#authDescription"),
   loginForm: $("#loginForm"),
   loginEmail: $("#loginEmail"),
   loginPassword: $("#loginPassword"),
   loginButton: $("#loginButton"),
   loginMessage: $("#loginMessage"),
+  forgotPasswordButton: $("#forgotPasswordButton"),
+  recoveryRequestForm: $("#recoveryRequestForm"),
+  recoveryEmail: $("#recoveryEmail"),
+  recoveryRequestMessage: $("#recoveryRequestMessage"),
+  sendRecoveryButton: $("#sendRecoveryButton"),
+  backToLoginButton: $("#backToLoginButton"),
+  passwordUpdateForm: $("#passwordUpdateForm"),
+  newPassword: $("#newPassword"),
+  confirmNewPassword: $("#confirmNewPassword"),
+  passwordUpdateMessage: $("#passwordUpdateMessage"),
+  saveNewPasswordButton: $("#saveNewPasswordButton"),
   logoutButton: $("#logoutButton"),
   currentUserName: $("#currentUserName"),
   currentUserRole: $("#currentUserRole"),
@@ -156,20 +171,35 @@ async function boot() {
   buildTimeOptions();
   attachEventListeners();
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) await loadAuthenticatedApp(session);
-  else showLogin();
-
   supabase.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_IN" && session && state.user?.id !== session.user.id) {
+    if (event === "PASSWORD_RECOVERY" && session) {
+      state.recoveryMode = true;
+      setTimeout(() => showPasswordUpdate(session), 0);
+      return;
+    }
+    if (event === "SIGNED_IN" && session && !state.recoveryMode && state.user?.id !== session.user.id) {
       setTimeout(() => loadAuthenticatedApp(session), 0);
     }
     if (event === "SIGNED_OUT") setTimeout(clearAuthenticatedApp, 0);
   });
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session && (state.recoveryMode || hasRecoveryParameters())) {
+    state.recoveryMode = true;
+    showPasswordUpdate(session);
+  } else if (session) {
+    await loadAuthenticatedApp(session);
+  } else {
+    showLogin();
+  }
 }
 
 function attachEventListeners() {
   elements.loginForm.addEventListener("submit", login);
+  elements.forgotPasswordButton.addEventListener("click", showRecoveryRequest);
+  elements.recoveryRequestForm.addEventListener("submit", requestPasswordReset);
+  elements.backToLoginButton.addEventListener("click", showLogin);
+  elements.passwordUpdateForm.addEventListener("submit", updatePassword);
   elements.logoutButton.addEventListener("click", logout);
   elements.previousMonth.addEventListener("click", () => changeMonth(-1));
   elements.nextMonth.addEventListener("click", () => changeMonth(1));
@@ -270,6 +300,7 @@ function attachEventListeners() {
 async function login(event) {
   event.preventDefault();
   elements.loginMessage.textContent = "";
+  elements.loginMessage.classList.remove("success");
   elements.loginButton.disabled = true;
   elements.loginButton.textContent = "Signing in...";
 
@@ -287,6 +318,90 @@ async function login(event) {
 
   elements.loginButton.disabled = false;
   elements.loginButton.textContent = "Sign in";
+}
+
+function showRecoveryRequest() {
+  state.recoveryMode = false;
+  elements.loginHeading.textContent = "reset password";
+  elements.authDescription.textContent = "Enter the email used for your calendar login and we’ll send you a secure reset link.";
+  elements.loginForm.classList.add("hidden");
+  elements.passwordUpdateForm.classList.add("hidden");
+  elements.recoveryRequestForm.classList.remove("hidden");
+  elements.recoveryRequestMessage.textContent = "";
+  elements.recoveryRequestMessage.classList.remove("success");
+  elements.recoveryEmail.value = elements.loginEmail.value.trim();
+  elements.recoveryEmail.focus();
+}
+
+async function requestPasswordReset(event) {
+  event.preventDefault();
+  elements.recoveryRequestMessage.textContent = "";
+  elements.recoveryRequestMessage.classList.remove("success");
+  elements.sendRecoveryButton.disabled = true;
+  elements.sendRecoveryButton.textContent = "Sending...";
+
+  const redirectTo = `${window.location.origin}${window.location.pathname}`;
+  const { error } = await supabase.auth.resetPasswordForEmail(elements.recoveryEmail.value.trim(), { redirectTo });
+
+  if (error) {
+    elements.recoveryRequestMessage.textContent = "The reset email could not be sent right now. Please wait a moment and try again.";
+  } else {
+    elements.recoveryRequestMessage.textContent = "If that email belongs to a calendar account, a reset link is on its way. Check your inbox and spam folder.";
+    elements.recoveryRequestMessage.classList.add("success");
+  }
+
+  elements.sendRecoveryButton.disabled = false;
+  elements.sendRecoveryButton.textContent = "Send reset email";
+}
+
+function showPasswordUpdate(session) {
+  if (!session?.user) return showLogin();
+  state.user = session.user;
+  elements.authView.classList.remove("hidden");
+  elements.appView.classList.add("hidden");
+  elements.loginHeading.textContent = "choose a new password";
+  elements.authDescription.textContent = "Create a new password for your private shared calendar.";
+  elements.loginForm.classList.add("hidden");
+  elements.recoveryRequestForm.classList.add("hidden");
+  elements.passwordUpdateForm.classList.remove("hidden");
+  elements.newPassword.value = "";
+  elements.confirmNewPassword.value = "";
+  elements.passwordUpdateMessage.textContent = "";
+  elements.passwordUpdateMessage.classList.remove("success");
+  elements.saveNewPasswordButton.disabled = false;
+  elements.saveNewPasswordButton.textContent = "Save new password";
+  elements.newPassword.focus();
+}
+
+async function updatePassword(event) {
+  event.preventDefault();
+  elements.passwordUpdateMessage.textContent = "";
+
+  if (elements.newPassword.value.length < 8) {
+    elements.passwordUpdateMessage.textContent = "Use at least 8 characters for the new password.";
+    return;
+  }
+  if (elements.newPassword.value !== elements.confirmNewPassword.value) {
+    elements.passwordUpdateMessage.textContent = "The two passwords do not match.";
+    return;
+  }
+
+  elements.saveNewPasswordButton.disabled = true;
+  elements.saveNewPasswordButton.textContent = "Saving...";
+  const { error } = await supabase.auth.updateUser({ password: elements.newPassword.value });
+
+  if (error) {
+    elements.passwordUpdateMessage.textContent = "The password could not be updated. Please request a new reset link and try again.";
+    elements.saveNewPasswordButton.disabled = false;
+    elements.saveNewPasswordButton.textContent = "Save new password";
+    return;
+  }
+
+  state.recoveryMode = false;
+  state.authNotice = "Password updated. You can now sign in with your new password.";
+  clearRecoveryParameters();
+  await supabase.auth.signOut();
+  elements.loginPassword.value = "";
 }
 
 async function logout() {
@@ -350,8 +465,22 @@ function showApp() {
 }
 
 function showLogin() {
+  state.recoveryMode = false;
   elements.authView.classList.remove("hidden");
   elements.appView.classList.add("hidden");
+  elements.loginHeading.textContent = "shared calendar";
+  elements.authDescription.textContent = "A private place for CJ and Aleckz to share schedules and make plans.";
+  elements.loginForm.classList.remove("hidden");
+  elements.recoveryRequestForm.classList.add("hidden");
+  elements.passwordUpdateForm.classList.add("hidden");
+  if (state.authNotice) {
+    elements.loginMessage.textContent = state.authNotice;
+    elements.loginMessage.classList.add("success");
+    state.authNotice = "";
+  } else {
+    elements.loginMessage.textContent = "";
+    elements.loginMessage.classList.remove("success");
+  }
 }
 
 function clearAuthenticatedApp() {
@@ -363,6 +492,16 @@ function clearAuthenticatedApp() {
   state.notifications = [];
   closeAllModals();
   showLogin();
+}
+
+function hasRecoveryParameters() {
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(window.location.search);
+  return hash.get("type") === "recovery" || query.get("type") === "recovery";
+}
+
+function clearRecoveryParameters() {
+  window.history.replaceState({}, document.title, window.location.pathname);
 }
 
 async function loadItems() {

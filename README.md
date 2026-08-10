@@ -5,6 +5,7 @@ A private GitHub Pages calendar for CJ and Aleckz, backed by Supabase.
 ## Current milestone — two-person schedules and invitations
 
 - Existing email/password access remains restricted to the two approved accounts.
+- A forgot-password flow sends a secure recovery link and lets the account owner choose a new password on the site.
 - CJ's personal schedule uses muted blue.
 - Aleckz's personal schedule uses lilac/muted purple.
 - Plans together use muted gold.
@@ -21,7 +22,7 @@ A private GitHub Pages calendar for CJ and Aleckz, backed by Supabase.
 
 ## Notifications
 
-In-site notifications are active. Automatic email or SMS requires a protected server-side provider key and must not be placed in this public GitHub Pages source. The database already contains private notification preferences so email can be connected first and SMS can be added later without redesigning the calendar.
+In-site notifications are active. Supabase Auth handles password-reset emails. Automatic invitation email or SMS requires a protected server-side provider key and must not be placed in this public GitHub Pages source. The database already contains private notification preferences so email can be connected first and SMS can be added later without redesigning the calendar.
 
 ## Next roadmap items
 
