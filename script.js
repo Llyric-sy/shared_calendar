@@ -42,6 +42,10 @@ const state = {
   detailId: null,
   filter: "all",
   draggedItemId: null,
+  copyingItemId: null,
+  longPressTimer: null,
+  longPressStart: null,
+  suppressNextEventClick: false,
   items: [],
   notifications: [],
   profiles: new Map(),
@@ -281,6 +285,10 @@ function attachEventListeners() {
       target.classList.remove("drag-over");
       copyItemToAdjacentMonth(target.dataset.copyDirection === "previous" ? -1 : 1);
     });
+    target.addEventListener("click", () => {
+      if (!state.copyingItemId) return;
+      copyItemToAdjacentMonth(target.dataset.copyDirection === "previous" ? -1 : 1);
+    });
   });
 
   [elements.dayModal, elements.eventModal, elements.detailModal].forEach(modal => {
@@ -298,6 +306,11 @@ function attachEventListeners() {
   });
   document.addEventListener("keydown", event => {
     if (event.key !== "Escape") return;
+    if (state.copyingItemId) {
+      finishCopying();
+      showToast("Copy cancelled.");
+      return;
+    }
     if (!elements.eventModal.classList.contains("hidden")) closeEditor();
     else if (!elements.detailModal.classList.contains("hidden")) closeDetail();
     else if (!elements.dayModal.classList.contains("hidden")) closeDayView();
@@ -492,6 +505,7 @@ function showLogin() {
 
 function clearAuthenticatedApp() {
   removeRealtime();
+  finishCopying();
   state.user = null;
   state.profile = null;
   state.otherProfile = null;
@@ -612,16 +626,22 @@ function renderCalendar() {
 
     cell.addEventListener("click", event => {
       if (event.target.closest(".event-chip")) return;
+      if (state.copyingItemId) {
+        event.preventDefault();
+        copySelectedItem(isoDate);
+        return;
+      }
       openDayView(isoDate);
     });
     cell.addEventListener("keydown", event => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        openDayView(isoDate);
+        if (state.copyingItemId) copySelectedItem(isoDate);
+        else openDayView(isoDate);
       }
     });
     cell.addEventListener("dblclick", event => {
-      if (event.target.closest(".event-chip")) return;
+      if (event.target.closest(".event-chip") || state.copyingItemId) return;
       openEditor({ type: "schedule", date: isoDate });
     });
     cell.addEventListener("dragover", event => {
@@ -666,8 +686,40 @@ function createEventChip(item) {
 
   button.addEventListener("click", event => {
     event.stopPropagation();
+    if (state.suppressNextEventClick) {
+      state.suppressNextEventClick = false;
+      return;
+    }
     if (item.item_type === "schedule" && canEditItem(item)) openEditor({ itemId: item.id });
     else openDetail(item.id);
+  });
+
+  button.addEventListener("pointerdown", event => {
+    if (event.pointerType === "mouse" || !canEditItem(item)) return;
+    clearLongPressTimer();
+    state.longPressStart = { x: event.clientX, y: event.clientY };
+    state.longPressTimer = window.setTimeout(() => {
+      state.suppressNextEventClick = true;
+      beginCopyMode(item);
+      if (navigator.vibrate) navigator.vibrate(20);
+    }, 550);
+  });
+  button.addEventListener("pointermove", event => {
+    if (!state.longPressStart) return;
+    const moved = Math.hypot(
+      event.clientX - state.longPressStart.x,
+      event.clientY - state.longPressStart.y
+    );
+    if (moved > 10) clearLongPressTimer();
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(eventName => {
+    button.addEventListener(eventName, clearLongPressTimer);
+  });
+  button.addEventListener("contextmenu", event => {
+    if (!canEditItem(item)) return;
+    event.preventDefault();
+    state.suppressNextEventClick = true;
+    beginCopyMode(item);
   });
 
   button.addEventListener("dragstart", event => {
@@ -721,8 +773,14 @@ async function copyDraggedItem(targetDate) {
 }
 
 async function copyItemToAdjacentMonth(offset) {
-  const item = state.items.find(entry => entry.id === state.draggedItemId);
-  if (!item || !canEditItem(item)) return finishDragging();
+  const copyModeActive = Boolean(state.copyingItemId);
+  const activeItemId = state.draggedItemId || state.copyingItemId;
+  const item = state.items.find(entry => entry.id === activeItemId);
+  if (!item || !canEditItem(item)) {
+    finishDragging();
+    finishCopying();
+    return;
+  }
   const source = parseISODate(item.event_date);
   const targetMonth = new Date(source.getFullYear(), source.getMonth() + offset, 1);
   const lastDay = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
@@ -730,7 +788,46 @@ async function copyItemToAdjacentMonth(offset) {
   await copyItemToDate(item, toISODate(target));
   state.currentDate = new Date(target.getFullYear(), target.getMonth(), 1);
   finishDragging();
+  if (copyModeActive) finishCopying();
   renderCalendar();
+}
+
+function beginCopyMode(item) {
+  if (!canEditItem(item)) return;
+  clearLongPressTimer();
+  state.copyingItemId = item.id;
+  document.body.classList.add("is-copying");
+  elements.copyTargets.setAttribute("aria-hidden", "false");
+  const instruction = elements.copyTargets.querySelector("p");
+  if (instruction) instruction.textContent = "Go to any month, then tap a date";
+  showToast("Copy mode on. Go to any month, then tap a date.");
+}
+
+async function copySelectedItem(targetDate) {
+  const item = state.items.find(entry => entry.id === state.copyingItemId);
+  if (!item || !canEditItem(item)) return finishCopying();
+  if (targetDate === item.event_date) {
+    showToast("Choose a different date to copy this entry.");
+    return;
+  }
+  await copyItemToDate(item, targetDate);
+  finishCopying();
+}
+
+function finishCopying() {
+  clearLongPressTimer();
+  state.copyingItemId = null;
+  state.suppressNextEventClick = false;
+  document.body.classList.remove("is-copying");
+  elements.copyTargets.setAttribute("aria-hidden", "true");
+  const instruction = elements.copyTargets.querySelector("p");
+  if (instruction) instruction.textContent = "Drop on a date to copy";
+}
+
+function clearLongPressTimer() {
+  if (state.longPressTimer) window.clearTimeout(state.longPressTimer);
+  state.longPressTimer = null;
+  state.longPressStart = null;
 }
 
 async function copyItemToDate(item, targetDate) {
