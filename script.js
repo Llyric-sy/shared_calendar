@@ -42,6 +42,7 @@ const state = {
   detailId: null,
   filter: "all",
   draggedItemId: null,
+  pendingCalendarRender: false,
   copyingItemId: null,
   longPressTimer: null,
   longPressStart: null,
@@ -104,6 +105,7 @@ const elements = {
   calendarDays: $("#calendarDays"),
   calendarMessage: $("#calendarMessage"),
   copyTargets: $("#copyTargets"),
+  cancelCopyMode: $("#cancelCopyMode"),
   dayModal: $("#dayModal"),
   dayTitle: $("#dayTitle"),
   dayScheduleButton: $("#dayScheduleButton"),
@@ -141,6 +143,7 @@ const elements = {
   eventNotes: $("#eventNotes"),
   formMessage: $("#formMessage"),
   deleteEvent: $("#deleteEvent"),
+  copyEvent: $("#copyEvent"),
   saveEventButton: $("#saveEventButton"),
   detailModal: $("#detailModal"),
   closeDetailModal: $("#closeDetailModal"),
@@ -245,6 +248,12 @@ function attachEventListeners() {
   elements.closeDetailModal.addEventListener("click", closeDetail);
   elements.eventForm.addEventListener("submit", saveItem);
   elements.deleteEvent.addEventListener("click", deleteCurrentItem);
+  elements.copyEvent.addEventListener("click", startCopyFromEditor);
+  elements.cancelCopyMode.addEventListener("click", () => {
+    if (!state.copyingItemId) return;
+    finishCopying();
+    showToast("Copy cancelled.");
+  });
   elements.scheduleType.addEventListener("change", updateScheduleTitleField);
   elements.templateSelect.addEventListener("change", () => {
     updateCustomTitleField();
@@ -283,7 +292,8 @@ function attachEventListeners() {
     target.addEventListener("drop", event => {
       event.preventDefault();
       target.classList.remove("drag-over");
-      copyItemToAdjacentMonth(target.dataset.copyDirection === "previous" ? -1 : 1);
+      const itemId = event.dataTransfer?.getData("text/plain") || state.draggedItemId;
+      copyItemToAdjacentMonth(target.dataset.copyDirection === "previous" ? -1 : 1, itemId);
     });
     target.addEventListener("click", () => {
       if (!state.copyingItemId) return;
@@ -537,7 +547,8 @@ async function loadItems() {
     setCalendarMessage("Could not load the calendar.", true);
   } else {
     state.items = data || [];
-    renderCalendar();
+    if (state.draggedItemId) state.pendingCalendarRender = true;
+    else renderCalendar();
     if (state.selectedDate && !elements.dayModal.classList.contains("hidden")) renderDayView();
     if (state.detailId && !elements.detailModal.classList.contains("hidden")) openDetail(state.detailId);
     setCalendarMessage("");
@@ -653,7 +664,8 @@ function renderCalendar() {
     cell.addEventListener("drop", event => {
       event.preventDefault();
       cell.classList.remove("drag-over");
-      copyDraggedItem(isoDate);
+      const itemId = event.dataTransfer?.getData("text/plain") || state.draggedItemId;
+      copyDraggedItem(isoDate, itemId);
     });
 
     elements.calendarDays.append(cell);
@@ -668,6 +680,7 @@ function createEventChip(item) {
   button.draggable = canEditItem(item);
   button.dataset.itemId = item.id;
   button.title = `${item.title} · ${item.all_day ? "All day" : formatTimeRange(item)}`;
+  button.setAttribute("aria-label", `${button.title}${canEditItem(item) ? ". Drag or open to copy." : ""}`);
 
   const time = document.createElement("span");
   time.className = "event-time";
@@ -726,11 +739,13 @@ function createEventChip(item) {
     if (!canEditItem(item)) return event.preventDefault();
     state.draggedItemId = item.id;
     button.classList.add("dragging");
-    document.body.classList.add("is-dragging");
     event.dataTransfer.effectAllowed = "copy";
     event.dataTransfer.setData("text/plain", item.id);
+    window.requestAnimationFrame(() => {
+      if (state.draggedItemId === item.id) document.body.classList.add("is-dragging");
+    });
   });
-  button.addEventListener("dragend", () => finishDragging());
+  button.addEventListener("dragend", () => window.setTimeout(finishDragging, 0));
   return button;
 }
 
@@ -761,8 +776,8 @@ function defaultEntryDate() {
   return toISODate(viewingCurrentMonth ? today : state.currentDate);
 }
 
-async function copyDraggedItem(targetDate) {
-  const item = state.items.find(entry => entry.id === state.draggedItemId);
+async function copyDraggedItem(targetDate, itemId = state.draggedItemId) {
+  const item = state.items.find(entry => entry.id === itemId);
   if (!item || !canEditItem(item)) return finishDragging();
   if (targetDate === item.event_date) {
     finishDragging();
@@ -772,10 +787,9 @@ async function copyDraggedItem(targetDate) {
   finishDragging();
 }
 
-async function copyItemToAdjacentMonth(offset) {
+async function copyItemToAdjacentMonth(offset, itemId = state.draggedItemId || state.copyingItemId) {
   const copyModeActive = Boolean(state.copyingItemId);
-  const activeItemId = state.draggedItemId || state.copyingItemId;
-  const item = state.items.find(entry => entry.id === activeItemId);
+  const item = state.items.find(entry => entry.id === itemId);
   if (!item || !canEditItem(item)) {
     finishDragging();
     finishCopying();
@@ -785,7 +799,8 @@ async function copyItemToAdjacentMonth(offset) {
   const targetMonth = new Date(source.getFullYear(), source.getMonth() + offset, 1);
   const lastDay = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
   const target = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), Math.min(source.getDate(), lastDay));
-  await copyItemToDate(item, toISODate(target));
+  const copied = await copyItemToDate(item, toISODate(target));
+  if (!copied) return;
   state.currentDate = new Date(target.getFullYear(), target.getMonth(), 1);
   finishDragging();
   if (copyModeActive) finishCopying();
@@ -798,9 +813,15 @@ function beginCopyMode(item) {
   state.copyingItemId = item.id;
   document.body.classList.add("is-copying");
   elements.copyTargets.setAttribute("aria-hidden", "false");
-  const instruction = elements.copyTargets.querySelector("p");
-  if (instruction) instruction.textContent = "Go to any month, then tap a date";
+  elements.cancelCopyMode.textContent = "Go to any month, tap a date · Cancel";
   showToast("Copy mode on. Go to any month, then tap a date.");
+}
+
+function startCopyFromEditor() {
+  const item = state.items.find(entry => entry.id === state.editingId);
+  if (!item || !canEditItem(item)) return;
+  closeEditor();
+  beginCopyMode(item);
 }
 
 async function copySelectedItem(targetDate) {
@@ -810,8 +831,8 @@ async function copySelectedItem(targetDate) {
     showToast("Choose a different date to copy this entry.");
     return;
   }
-  await copyItemToDate(item, targetDate);
-  finishCopying();
+  const copied = await copyItemToDate(item, targetDate);
+  if (copied) finishCopying();
 }
 
 function finishCopying() {
@@ -820,8 +841,7 @@ function finishCopying() {
   state.suppressNextEventClick = false;
   document.body.classList.remove("is-copying");
   elements.copyTargets.setAttribute("aria-hidden", "true");
-  const instruction = elements.copyTargets.querySelector("p");
-  if (instruction) instruction.textContent = "Drop on a date to copy";
+  elements.cancelCopyMode.textContent = "Drop on a date to copy";
 }
 
 function clearLongPressTimer() {
@@ -864,19 +884,24 @@ async function copyItemToDate(item, targetDate) {
   if (error) {
     setCalendarMessage("The entry could not be copied.", true);
     showToast("The entry could not be copied.");
+    return false;
   } else {
     if (item.item_type === "plan" && copiedItem?.id) {
       requestEmailDelivery(copiedItem.id, "invitation");
     }
     await loadItems();
     showToast(`Copied to ${formatLongDate(targetDate)}.`);
+    return true;
   }
 }
 
 function finishDragging() {
+  const shouldRender = state.pendingCalendarRender;
   state.draggedItemId = null;
+  state.pendingCalendarRender = false;
   document.body.classList.remove("is-dragging");
   $$(".dragging, .drag-over").forEach(item => item.classList.remove("dragging", "drag-over"));
+  if (shouldRender) renderCalendar();
 }
 
 function openDayView(isoDate) {
@@ -985,6 +1010,7 @@ function openEditor({ type = "schedule", date = null, start = "09:00", end = "17
   elements.editorMeta.textContent = item ? `Created by ${displayName(state.profiles.get(item.created_by))}` : formatLongDate(itemDate);
   elements.saveEventButton.textContent = item ? "Save changes" : (isPlan ? `Send invite to ${displayName(state.otherProfile)}` : "Save schedule");
   elements.deleteEvent.classList.toggle("hidden", !item);
+  elements.copyEvent.classList.toggle("hidden", !item);
 
   if (isPlan) {
     const templateKey = item?.template && templates[item.template] ? item.template : "custom";

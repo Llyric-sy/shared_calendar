@@ -116,7 +116,7 @@
 
       <div id="copyTargets" class="copy-targets" aria-hidden="true">
         <div class="copy-target" data-copy-direction="previous">← Copy to previous month</div>
-        <p>Drop on a date to copy</p>
+        <button id="cancelCopyMode" class="copy-cancel" type="button">Drop on a date to copy</button>
         <div class="copy-target" data-copy-direction="next">Copy to next month →</div>
       </div>
 
@@ -277,6 +277,7 @@
         <p id="formMessage" class="form-message" aria-live="polite"></p>
         <div class="form-actions">
           <button id="deleteEvent" class="danger-button hidden" type="button">Delete</button>
+          <button id="copyEvent" class="secondary-button hidden" type="button">Copy</button>
           <span class="form-spacer"></span>
           <button id="cancelEditor" class="secondary-button" type="button">Cancel</button>
           <button id="saveEventButton" class="primary-button" type="submit">Save schedule</button>

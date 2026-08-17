@@ -235,7 +235,7 @@ textarea { resize: vertical; line-height: 1.5; }
 .page-description { margin-bottom: 0; color: var(--muted); line-height: 1.55; }
 .main-actions { gap: 9px; }
 
-.calendar-card { overflow: hidden; border: 1px solid var(--border); border-radius: 22px; background: var(--surface); box-shadow: var(--shadow); }
+.calendar-card { position: relative; overflow: hidden; border: 1px solid var(--border); border-radius: 22px; background: var(--surface); box-shadow: var(--shadow); }
 .calendar-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--border); padding: 17px 19px; }
 .filter-tabs { display: flex; align-items: center; gap: 5px; border-radius: 12px; background: var(--surface-soft); padding: 4px; }
 .filter-button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 8px 10px; color: var(--muted); font-size: .76rem; }
@@ -247,11 +247,12 @@ textarea { resize: vertical; line-height: 1.5; }
 .month-controls { gap: 7px; }
 .month-jump { width: 142px; padding: 8px 9px; font-size: .78rem; }
 
-.copy-targets { display: none; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; border-bottom: 1px solid var(--border); background: var(--surface-soft); padding: 10px 18px; }
+.copy-targets { display: grid; position: fixed; z-index: 1200; top: 12px; left: 50%; width: min(900px, calc(100vw - 24px)); grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; visibility: hidden; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-soft); padding: 10px 18px; opacity: 0; pointer-events: none; transform: translate(-50%, -10px); transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease; box-shadow: var(--shadow); }
 body.is-dragging .copy-targets,
-body.is-copying .copy-targets { display: grid; }
+body.is-copying .copy-targets { visibility: visible; opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
 body.is-copying .copy-target { cursor: pointer; }
-.copy-targets p { margin: 0; color: var(--muted); font-size: .72rem; font-weight: 700; text-align: center; }
+.copy-cancel { border: 0; background: transparent; margin: 0; padding: 6px; color: var(--muted); font-size: .72rem; font-weight: 700; text-align: center; }
+body.is-copying .copy-cancel { color: var(--accent-dark); cursor: pointer; }
 .copy-target { border: 1px dashed var(--accent); border-radius: 9px; padding: 8px; color: var(--accent-dark); font-size: .73rem; font-weight: 750; text-align: center; }
 .copy-target.drag-over { background: var(--accent-soft); }
 
